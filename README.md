@@ -12,6 +12,7 @@
 - 🌐 **Live GUI (GitHub Pages):** <https://enigma-group-project.github.io/Enigma-Decentralized-Student-Marketplace/>
 - 💻 **Run locally:** `cd frontend/src && python3 -m http.server 8080` → open <http://localhost:8080>
 - 📖 **Procedures:** [docs/PROCEDURES.md](docs/PROCEDURES.md)
+- 📊 **Tracker:** <https://enigma-group-project.github.io/Enigma-Decentralized-Student-Marketplace/tracker/>
 
 ## 🛠 Build · deploy · run · test (per slice)
 

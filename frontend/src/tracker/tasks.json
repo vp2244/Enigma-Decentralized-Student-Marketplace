@@ -1,0 +1,81 @@
+{
+  "project": {
+    "title": "Enigma-Decentralized-Student-Marketplace",
+    "scenario": "Peer-to-peer student marketplace — mint credits, list items, and escrow payments with on-chain ratings.",
+    "repo": "https://github.com/enigma-group-project/Enigma-Decentralized-Student-Marketplace",
+    "gui": "https://enigma-group-project.github.io/Enigma-Decentralized-Student-Marketplace/",
+    "tracker": "https://enigma-group-project.github.io/Enigma-Decentralized-Student-Marketplace/tracker/"
+  },
+  "org": "enigma-group-project",
+  "timeline": { "start": "2026-06-10", "end": "2026-07-01" },
+  "phases": ["plan","design","code","compile","revise","deploy","test","document","present"],
+  "members": [
+    {
+      "id": 1,
+      "name": "Member 1",
+      "handle": "@member1",
+      "slice": "Token + Wallet",
+      "contract": "EnigCredit.sol",
+      "testContract": "EnigCreditTest",
+      "module": "token",
+      "functions": "mint, transfer, approve",
+      "branch": "feature/member1-token",
+      "deliverables": { "video": "", "slides": "", "doc": "docs/token-module.md" }
+    },
+    {
+      "id": 2,
+      "name": "Member 2",
+      "handle": "@member2",
+      "slice": "Listings",
+      "contract": "Marketplace.sol",
+      "testContract": "ListingsTest",
+      "module": "listings",
+      "functions": "createListing, getListing, totalListings",
+      "branch": "feature/member2-listings",
+      "deliverables": { "video": "", "slides": "", "doc": "docs/listings-module.md" }
+    },
+    {
+      "id": 3,
+      "name": "Member 3",
+      "handle": "@member3",
+      "slice": "Escrow + Ratings",
+      "contract": "Marketplace.sol",
+      "testContract": "EscrowTest",
+      "module": "market",
+      "functions": "purchaseItem, confirmDelivery, cancelPurchase, rateUser",
+      "branch": "feature/member3-escrow",
+      "deliverables": { "video": "", "slides": "", "doc": "docs/escrow-module.md" }
+    }
+  ],
+  "tasks": [
+    { "id": "m1-plan",     "member": 1, "phase": "plan",     "due": "2026-06-11", "done": false, "title": "Plan Token + Wallet",        "desc": "Define roles, acceptance criteria, and a sequence diagram for the Token + Wallet slice." },
+    { "id": "m1-design",   "member": 1, "phase": "design",   "due": "2026-06-13", "done": false, "title": "Design EnigCredit.sol",      "desc": "Sketch data structures, events, and the ERC-20-style interface for EnigCredit." },
+    { "id": "m1-code",     "member": 1, "phase": "code",     "due": "2026-06-16", "done": false, "title": "Implement mint/transfer/approve", "desc": "Write mint, transfer, and approve functions in EnigCredit.sol." },
+    { "id": "m1-compile",  "member": 1, "phase": "compile",  "due": "2026-06-17", "done": false, "title": "Compile EnigCredit.sol",     "desc": "Run forge build; resolve all compiler errors and warnings." },
+    { "id": "m1-revise",   "member": 1, "phase": "revise",   "due": "2026-06-18", "done": false, "title": "Revise token logic",         "desc": "Address code-review feedback; tighten access control and overflow checks." },
+    { "id": "m1-deploy",   "member": 1, "phase": "deploy",   "due": "2026-06-20", "done": false, "title": "Deploy EnigCredit to Anvil", "desc": "Deploy EnigCredit.sol to a local Anvil testnet; record deployed address." },
+    { "id": "m1-test",     "member": 1, "phase": "test",     "due": "2026-06-22", "done": false, "title": "Test EnigCreditTest",        "desc": "Write and run EnigCreditTest; all mint/transfer/approve cases must pass." },
+    { "id": "m1-document", "member": 1, "phase": "document", "due": "2026-06-25", "done": false, "title": "Document token module",      "desc": "Complete docs/token-module.md with interface reference and usage examples." },
+    { "id": "m1-present",  "member": 1, "phase": "present",  "due": "2026-06-30", "done": false, "title": "Present Token + Wallet",    "desc": "Record a 3-minute demo video of the token module and prepare slides." },
+
+    { "id": "m2-plan",     "member": 2, "phase": "plan",     "due": "2026-06-11", "done": false, "title": "Plan Listings slice",        "desc": "Define listing lifecycle, struct fields, and acceptance criteria for the Listings slice." },
+    { "id": "m2-design",   "member": 2, "phase": "design",   "due": "2026-06-13", "done": false, "title": "Design Listing struct",      "desc": "Design the Listing struct, storage mapping, and event signatures in Marketplace.sol." },
+    { "id": "m2-code",     "member": 2, "phase": "code",     "due": "2026-06-16", "done": false, "title": "Implement createListing/getListing", "desc": "Implement createListing, getListing, and totalListings functions." },
+    { "id": "m2-compile",  "member": 2, "phase": "compile",  "due": "2026-06-17", "done": false, "title": "Compile listings code",      "desc": "Run forge build; fix any compiler errors in the listings slice." },
+    { "id": "m2-revise",   "member": 2, "phase": "revise",   "due": "2026-06-18", "done": false, "title": "Revise listings logic",      "desc": "Apply review feedback; add input validation and duplicate-listing guard." },
+    { "id": "m2-deploy",   "member": 2, "phase": "deploy",   "due": "2026-06-20", "done": false, "title": "Deploy Marketplace (listings)", "desc": "Deploy Marketplace.sol to Anvil with listings slice active; verify createListing works." },
+    { "id": "m2-test",     "member": 2, "phase": "test",     "due": "2026-06-22", "done": false, "title": "Test ListingsTest",          "desc": "Write and run ListingsTest; cover happy-path and invalid-seller edge cases." },
+    { "id": "m2-document", "member": 2, "phase": "document", "due": "2026-06-25", "done": false, "title": "Document listings module",   "desc": "Complete docs/listings-module.md with function reference and example calls." },
+    { "id": "m2-present",  "member": 2, "phase": "present",  "due": "2026-06-30", "done": false, "title": "Present Listings slice",    "desc": "Record a 3-minute demo and prepare slides covering the full listing flow." },
+
+    { "id": "m3-plan",     "member": 3, "phase": "plan",     "due": "2026-06-11", "done": false, "title": "Plan Escrow + Ratings",     "desc": "Map the purchase-to-delivery state machine and define rating criteria for the Escrow slice." },
+    { "id": "m3-design",   "member": 3, "phase": "design",   "due": "2026-06-13", "done": false, "title": "Design escrow state machine","desc": "Design Purchase struct, escrow states, and rateUser storage in Marketplace.sol." },
+    { "id": "m3-code",     "member": 3, "phase": "code",     "due": "2026-06-16", "done": false, "title": "Implement purchaseItem/confirmDelivery/cancelPurchase/rateUser", "desc": "Implement purchaseItem, confirmDelivery, cancelPurchase, and rateUser with EnigCredit transfers." },
+    { "id": "m3-compile",  "member": 3, "phase": "compile",  "due": "2026-06-17", "done": false, "title": "Compile escrow code",        "desc": "Run forge build; resolve compiler errors in the escrow and ratings slice." },
+    { "id": "m3-revise",   "member": 3, "phase": "revise",   "due": "2026-06-18", "done": false, "title": "Revise escrow logic",        "desc": "Tighten re-entrancy guards, dispute timeout, and rating bounds after review." },
+    { "id": "m3-deploy",   "member": 3, "phase": "deploy",   "due": "2026-06-20", "done": false, "title": "Deploy Marketplace (escrow)","desc": "Deploy full Marketplace.sol with escrow active; run end-to-end purchase flow." },
+    { "id": "m3-test",     "member": 3, "phase": "test",     "due": "2026-06-22", "done": false, "title": "Test EscrowTest",            "desc": "Write and run EscrowTest; cover purchase, delivery, cancellation, and rating scenarios." },
+    { "id": "m3-document", "member": 3, "phase": "document", "due": "2026-06-25", "done": false, "title": "Document escrow module",    "desc": "Complete docs/escrow-module.md with state-machine diagram and function reference." },
+    { "id": "m3-present",  "member": 3, "phase": "present",  "due": "2026-06-30", "done": false, "title": "Present Escrow + Ratings",  "desc": "Record a 3-minute demo of the full escrow flow and prepare slides." }
+  ]
+}

@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Project Tracker · Enigma</title>
+<style>
+  :root{--bg:#0d1117;--card:#161b22;--bd:#30363d;--fg:#e6edf3;--mut:#8b949e;--accent:#3fb950;--accent2:#1f6feb;--warn:#d29922}
+  *{box-sizing:border-box}body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg)}
+  a{color:#58a6ff;text-decoration:none}a:hover{text-decoration:underline}
+  .wrap{max-width:1020px;margin:0 auto;padding:24px}
+  h1{font-size:22px;margin:0 0 4px}.scn{color:var(--mut);margin:0 0 10px}
+  .links a{margin-right:14px;font-size:13px}
+  .bar{height:14px;background:#21262d;border-radius:7px;overflow:hidden;margin:8px 0}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));width:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:18px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px}
+  .mh{display:flex;justify-content:space-between;align-items:baseline}.mh b{font-size:16px}
+  .slice{color:var(--warn);font-size:13px}.handle{color:var(--mut);font-size:12px}
+  .del{font-size:12px;margin:6px 0 10px;color:var(--mut)}.del a{margin-right:10px}
+  .del .miss{color:#6e7681;font-style:italic}
+  ul{list-style:none;padding:0;margin:0}
+  li{display:flex;gap:8px;padding:6px 0;border-top:1px solid #21262d;align-items:flex-start}
+  li input{margin-top:3px}
+  .t b{font-size:13.5px}.t span{display:block;color:var(--mut);font-size:12px}
+  .due{margin-left:auto;color:#6e7681;font-size:11px;white-space:nowrap}
+  .ph{display:inline-block;min-width:62px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent2);font-weight:700}
+  .done .t b{text-decoration:line-through;color:var(--mut)}
+  .roll{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+  .roll div{flex:1;min-width:90px}.roll small{font-size:11px;color:var(--mut)}
+  .tl{position:relative;height:30px;margin:14px 0;background:#21262d;border-radius:6px}
+  .tl .today{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--warn)}
+  .tl .today span{position:absolute;top:-16px;left:-16px;font-size:10px;color:var(--warn);white-space:nowrap}
+  .tl .ends{position:absolute;font-size:10px;color:var(--mut);top:8px}
+  .btns{margin:14px 0}.btns button{background:#21262d;color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:6px 12px;cursor:pointer;margin-right:8px;font-size:13px}
+  .note{font-size:12px;color:var(--mut);background:#161b22;border:1px solid var(--bd);border-radius:8px;padding:10px;margin-top:8px}
+</style></head>
+<body><div class="wrap">
+  <h1 id="title">Loading…</h1>
+  <p class="scn" id="scn"></p>
+  <div class="links" id="links"></div>
+  <div><b id="pct">0%</b> complete <span id="counts" class="handle"></span></div>
+  <div class="bar"><i id="ov"></i></div>
+  <div class="tl" id="tl"></div>
+  <div class="roll" id="roll"></div>
+  <div class="btns">
+    <button onclick="exportJson()">⬇ Export tasks.json</button>
+    <button onclick="resetLocal()">↺ Reset my local checks</button>
+  </div>
+  <div class="note">The committed <code>tracker/tasks.json</code> is the shared source of truth — to record team progress, edit it (check <code>"done": true</code>, add deliverable links) and open a PR. Checkboxes here also save to <i>your</i> browser for a personal preview; use <b>Export tasks.json</b> to download your version to commit.</div>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+let DATA, KEY, ov={};
+const $=id=>document.getElementById(id);
+fetch('./tasks.json').then(r=>r.json()).then(d=>{DATA=d;KEY='enigma-tracker:'+d.project.title;ov=JSON.parse(localStorage.getItem(KEY)||'{}');render();})
+ .catch(e=>{$('title').textContent='Could not load tasks.json';});
+const isDone=t=> (t.id in ov)? ov[t.id] : t.done;
+function render(){
+  const p=DATA.project;
+  $('title').textContent=p.title;$('scn').textContent=p.scenario;
+  $('links').innerHTML=`<a href="${p.repo}">⌂ Framework (repo)</a><a href="${p.gui}">🖥 GUI</a><a href="${p.tracker}">📊 Tracker</a>`;
+  const done=DATA.tasks.filter(isDone).length, tot=DATA.tasks.length, pc=Math.round(100*done/tot);
+  $('pct').textContent=pc+'%';$('ov').style.width=pc+'%';$('counts').textContent=`(${done}/${tot} tasks)`;
+  // timeline
+  const s=new Date(DATA.timeline.start), e=new Date(DATA.timeline.end), now=new Date();
+  const f=(now-s)/(e-s); const tl=$('tl');tl.innerHTML='';
+  const lo=document.createElement('span');lo.className='ends';lo.style.left='6px';lo.textContent=DATA.timeline.start;tl.appendChild(lo);
+  const hi=document.createElement('span');hi.className='ends';hi.style.right='6px';hi.textContent=DATA.timeline.end;tl.appendChild(hi);
+  if(f>=0&&f<=1){const t=document.createElement('div');t.className='today';t.style.left=(f*100)+'%';t.innerHTML='<span>today</span>';tl.appendChild(t);}
+  // per-phase rollup
+  const roll=$('roll');roll.innerHTML='';
+  DATA.phases.forEach(ph=>{const ts=DATA.tasks.filter(t=>t.phase===ph);const dn=ts.filter(isDone).length;const w=Math.round(100*dn/ts.length);
+    roll.innerHTML+=`<div><small>${ph} ${dn}/${ts.length}</small><div class="bar"><i style="width:${w}%"></i></div></div>`;});
+  // member cards
+  const g=$('grid');g.innerHTML='';
+  DATA.members.forEach(m=>{
+    const mt=DATA.tasks.filter(t=>t.member===m.id);const md=mt.filter(isDone).length;const mp=Math.round(100*md/mt.length);
+    const dl=k=>m.deliverables[k]?`<a href="${m.deliverables[k]}">${k}</a>`:`<span class="miss">${k}: —</span>`;
+    let lis=mt.map(t=>`<li class="${isDone(t)?'done':''}"><input type="checkbox" ${isDone(t)?'checked':''} onchange="toggle('${t.id}',this.checked)">
+      <div class="t"><span class="ph">${t.phase}</span> <b>${t.title}</b><span>${t.desc}</span></div><span class="due">${t.due}</span></li>`).join('');
+    g.innerHTML+=`<div class="card"><div class="mh"><b>${m.name} <span class="handle">${m.handle}</span></b><span>${mp}%</span></div>
+      <div class="slice">Slice: ${m.slice} · <span class="handle">${m.branch}</span></div>
+      <div class="del">📎 ${dl('video')} ${dl('slides')} ${dl('doc')}</div>
+      <div class="bar"><i style="width:${mp}%"></i></div><ul>${lis}</ul></div>`;
+  });
+}
+function toggle(id,v){ov[id]=v;localStorage.setItem(KEY,JSON.stringify(ov));render();}
+function resetLocal(){ov={};localStorage.removeItem(KEY);render();}
+function exportJson(){const out=JSON.parse(JSON.stringify(DATA));out.tasks.forEach(t=>t.done=isDone(t));
+  const b=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download='tasks.json';a.click();}
+</script></body></html>
