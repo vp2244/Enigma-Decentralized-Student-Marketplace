@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Enigma-Decentralized-Student-Marketplace</title>
+<link rel="stylesheet" href="shared/layout.css"/></head>
+<body>
+<header class="enigma-header">
+  <h1>Enigma Decentralized Student Marketplace</h1>
+  <p class="scenario">Buy and sell textbooks, notes, electronics and supplies with EnigCredit (ENGC). Smart-contract escrow holds tokens until the buyer confirms delivery; sellers earn on-chain ratings.</p>
+  <p class="team">Team Enigma · Group E · one shared web app · three vertical slices (member1–member3)</p>
+  <label class="netrow">Network: <select id="net" class="net"></select></label>
+</header>
+<nav class="enigma-nav">
+  <a href="modules/token/index.html">1 · Token + Wallet (member1)</a>
+  <a href="modules/listings/index.html">2 · Listings (member2)</a>
+  <a href="modules/market/index.html">3 · Buy · Escrow · Ratings (member3)</a>
+</nav>
+<main><div class="card">
+  <p>One web app, one deployed system: <strong>EnigCredit</strong> (ERC-20) + <strong>Marketplace</strong> (escrow + ratings).</p>
+  <ol>
+    <li><code>forge build</code> → <code>forge script script/Deploy.s.sol --rpc-url &lt;network&gt; --broadcast</code></li>
+    <li>Paste addresses into <code>shared/config.js</code>, ABIs into <code>shared/abi.js</code></li>
+    <li>Open a module, pick the network, connect MetaMask for writes</li>
+  </ol>
+</div></main>
+<footer><small>EnigCredit + Marketplace · solc 0.8.20 · OpenZeppelin · Foundry + ethers.js · Anvil/Sepolia</small></footer>
+<script type="module">
+  import { mountNetworkSelector } from "./shared/app.js";
+  mountNetworkSelector("net");
+</script>
+</body></html>

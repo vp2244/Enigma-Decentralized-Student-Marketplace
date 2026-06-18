@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Listing (off-chain metadata mirror) — Enigma-Decentralized-Student-Marketplace",
+  "description": "On-chain stores the canonical listing; this documents the JSON shape the UI reads/writes.",
+  "type": "object",
+  "required": ["id", "seller", "title", "category", "condition", "priceInTokens", "status"],
+  "properties": {
+    "id":            { "type": "integer" },
+    "seller":        { "type": "string", "pattern": "^0x[0-9a-fA-F]{40}$" },
+    "buyer":         { "type": "string", "pattern": "^0x[0-9a-fA-F]{40}$" },
+    "title":         { "type": "string" },
+    "category":      { "type": "string", "enum": ["Textbook", "Notes", "Electronics", "Supplies", "Other"] },
+    "condition":     { "type": "string", "enum": ["New", "Good", "Fair"] },
+    "priceInTokens": { "type": "string", "description": "ENGC amount, 18 decimals (wei-style string)" },
+    "imageUrl":      { "type": "string" },
+    "status":        { "type": "string", "enum": ["Available", "Pending", "Sold", "Cancelled"] }
+  }
+}

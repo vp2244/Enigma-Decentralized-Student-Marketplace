@@ -1,0 +1,9 @@
+name: Auto-Grade
+# Canonical grader lives in cyber-enigma/autograder (single source of truth).
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  grade:
+    uses: cyber-enigma/autograder/.github/workflows/grade.yml@main

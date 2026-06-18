@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Listings · Marketplace</title>
+<link rel="stylesheet" href="../../shared/layout.css"/></head>
+<body>
+<header class="enigma-header"><h1>2 · Listings <span class="owner">member2</span></h1>
+  <p class="scenario">Post an item for sale, and browse what's available.</p>
+  <label class="netrow">Network: <select id="net" class="net"></select></label></header>
+<main>
+  <div class="card">
+    <button id="connect">Connect wallet (seller)</button>
+    <p id="who" class="muted"></p>
+    <h3>Create a listing</h3>
+    <input id="title" placeholder="title (e.g. Calculus: Early Transcendentals)"/>
+    <input id="category" placeholder="category (Textbook/Notes/Electronics/Supplies/Other)"/>
+    <input id="condition" placeholder="condition (New/Good/Fair)"/>
+    <input id="price" placeholder="price in ENGC (e.g. 50)"/>
+    <input id="imageUrl" placeholder="image URL (optional)"/>
+    <button id="create">Post listing</button>
+    <pre id="out" class="out"></pre>
+  </div>
+  <div class="card">
+    <h3>Available listings <button id="refresh" class="secondary">Refresh</button></h3>
+    <div id="list"></div>
+  </div>
+</main>
+<script type="module" src="listings.js"></script></body></html>

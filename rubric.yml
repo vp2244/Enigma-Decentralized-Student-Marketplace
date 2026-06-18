@@ -1,0 +1,14 @@
+# Auto-graded rubric (objective subset). Manual items live in PROJECT_BRIEF §11.
+automated:
+  compiles: 15            # forge build returns 0
+  tests_passing: 35       # forge test pass ratio
+  required_files: 15      # contracts/tests/schemas/frontend/README present
+  contract_impl: 15       # no TODO(member*)/revert("TODO") left in contracts/
+  docs_present: 10        # architecture + 4 module docs
+  hygiene: 10             # eval table filled, .gitignore, no secrets
+manual_instructor:
+  problem_definition_fit: 10
+  system_design_workflow: 15
+  evaluation_tradeoffs: 15
+  security_privacy_depth: 5
+  report_presentation: 10

@@ -1,0 +1,16 @@
+# 3 vertical slices — replace @enigma-group-project/memberN with real handles/teams.
+/contracts/EnigCredit.sol         @enigma-group-project/member1
+/frontend/src/modules/token/      @enigma-group-project/member1
+/test/EnigCredit.t.sol            @enigma-group-project/member1
+
+/frontend/src/modules/listings/   @enigma-group-project/member2
+/test/Listings.t.sol              @enigma-group-project/member2
+
+/frontend/src/modules/market/     @enigma-group-project/member3
+/test/Escrow.t.sol                @enigma-group-project/member3
+
+# Marketplace.sol is co-owned: listings (member2) + escrow/ratings (member3)
+/contracts/Marketplace.sol        @enigma-group-project/member2 @enigma-group-project/member3
+
+/.github/                         @enigma-group-project/member1
+/script/                          @enigma-group-project/member1

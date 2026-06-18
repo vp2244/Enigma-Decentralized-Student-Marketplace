@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Token + Wallet · Marketplace</title>
+<link rel="stylesheet" href="../../shared/layout.css"/></head>
+<body>
+<header class="enigma-header"><h1>1 · Token + Wallet <span class="owner">member1</span></h1>
+  <p class="scenario">Connect your wallet (your identity) and see your EnigCredit balance. Faculty/owner can mint demo credits.</p>
+  <label class="netrow">Network: <select id="net" class="net"></select></label></header>
+<main><div class="card">
+  <button id="connect">Connect wallet</button>
+  <p id="who" class="muted"></p>
+  <p id="bal" class="muted"></p>
+  <h3>Mint EnigCredit (owner only)</h3>
+  <input id="to" placeholder="0x… recipient"/>
+  <input id="amt" placeholder="amount (e.g. 500)"/>
+  <button id="mint">Mint ENGC</button>
+  <pre id="out" class="out"></pre>
+</div></main>
+<script type="module" src="token.js"></script></body></html>
