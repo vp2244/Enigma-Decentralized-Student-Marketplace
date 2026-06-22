@@ -17,7 +17,7 @@
 
 ```bash
 forge build                                                              # compile
-forge install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts   # one-time
+forge install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts@v5.1.0   # one-time
 forge test -vvvv                                                         # run every slice test
 anvil &                                                                  # terminal 2: local chain
 forge script script/Deploy.s.sol:Deploy --rpc-url http://127.0.0.1:8545 --broadcast
@@ -46,7 +46,7 @@ Solidity 0.8.20 · **OpenZeppelin** (ERC-20 + Burnable + Permit, Ownable, Reentr
 
 ## Quickstart (local Anvil)
 ```bash
-forge install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts
+forge install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts@v5.1.0
 forge build
 forge test -vvvv
 forge test --gas-report

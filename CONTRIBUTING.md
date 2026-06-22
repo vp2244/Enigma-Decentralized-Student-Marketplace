@@ -36,7 +36,7 @@ forge build                   # must be green before you touch anything
 ```
 
 > For `Enigma-Decentralized-Student-Marketplace` also run:
-> `forge install OpenZeppelin/openzeppelin-contracts`
+> `forge install OpenZeppelin/openzeppelin-contracts@v5.1.0`
 
 ### 2. Create your feature branch
 
