@@ -57,8 +57,8 @@ forge script script/Deploy.s.sol:Deploy --rpc-url http://127.0.0.1:8545 --broadc
 # ABIs into shared/abi.js, then open frontend/src/index.html
 ```
 
-> 📸 **New to the GUI?** Step-by-step MetaMask connect + mint walkthrough (with screenshots):
-> [`docs/PROCEDURES.md` §A5b](docs/PROCEDURES.md#a5b-token-module--connect-metamask--mint-engc-screenshot-walkthrough).
+> 📸 **Validate the token slice on both networks** (Local Anvil + Hosted Sepolia), step by step with
+> screenshots: [`docs/network-tests.md`](docs/network-tests.md). CLI details: [`docs/PROCEDURES.md`](docs/PROCEDURES.md).
 
 ## Hosted demo on GitHub Pages (Sepolia)
 ```bash

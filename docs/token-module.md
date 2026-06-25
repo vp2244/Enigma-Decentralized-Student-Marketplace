@@ -14,4 +14,5 @@ metadata · initial supply · owner mint · non-owner revert · transfer.
 
 ## Walkthrough
 
-📸 Connect MetaMask + mint ENGC, step by step with screenshots: [`PROCEDURES.md` §A5b](PROCEDURES.md#a5b-token-module--connect-metamask--mint-engc-screenshot-walkthrough).
+📸 Validate mint/owner/balance on **both networks** (Local Anvil + Hosted Sepolia), step by step with
+screenshots: [`network-tests.md`](network-tests.md). CLI reference: [`PROCEDURES.md`](PROCEDURES.md).

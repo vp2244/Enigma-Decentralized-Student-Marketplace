@@ -1,0 +1,245 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workflow · Enigma Docs</title>
+<link rel="stylesheet" href="docs.css"></head>
+<body>
+<header class="topbar"><a class="brand" href="../index.html">⟵ Enigma Demo</a><nav><a href="index.html">Docs Home</a><a href="network-tests.html">Network Tests</a><a href="contributing.html">Workflow</a><a href="procedures.html">Procedures</a><a href="../tracker/index.html">Tracker</a></nav></header>
+<main class="doc">
+<h1 id="contributing--pr-workflow">Contributing — PR Workflow</h1>
+<p>All changes to any prototype repo in the <code>enigma-group-project</code> org must go through a pull request. Direct pushes to <code>main</code> or <code>develop</code> are blocked for all members. This document is the single source of truth for the workflow every member follows.</p>
+<hr />
+<h2 id="branch-model">Branch model</h2>
+<pre><code>main          ← final, graded state (instructor merges from develop at submission)
+  └── develop ← integration branch (all member PRs target this)
+        ├── feature/member1-&lt;slice&gt;
+        ├── feature/member2-&lt;slice&gt;
+        ├── feature/member3-&lt;slice&gt;
+        └── feature/member4-&lt;slice&gt;</code></pre>
+<ul>
+<li><strong><code>main</code></strong> — never push here directly. Only the instructor (admin bypass) or a final PR from <code>develop</code> lands here.</li>
+<li><strong><code>develop</code></strong> — the shared integration branch. Open all PRs here.</li>
+<li><strong><code>feature/&lt;member&gt;-&lt;slice&gt;</code></strong> — your personal working branch. One branch per slice.</li>
+</ul>
+<hr />
+<h2 id="step-by-step-opening-a-pr">Step-by-step: opening a PR</h2>
+<h3 id="1-clone-the-repo-first-time-only">1. Clone the repo (first time only)</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--recursive</span> git@github.com:enigma-group-project/<span class="op">&lt;</span>Repo-Name<span class="op">&gt;</span>.git</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="op">&lt;</span>Repo-Name<span class="op">&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout develop                       <span class="co"># start from develop, not main</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule update <span class="at">--init</span> <span class="at">--recursive</span>    <span class="co"># pulls pinned deps per foundry.lock (OZ v5.1.0, forge-std)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> build                                 <span class="co"># must be green before you touch anything</span></span></code></pre></div>
+<blockquote>
+<p>Dependencies are pinned as git submodules via <code>foundry.lock</code> — <code>--recursive</code> (or the <code>git submodule update</code> line) restores OZ <strong>v5.1.0</strong> and forge-std automatically. If you cloned without <code>--recursive</code> and see <code>Source "@openzeppelin/contracts/…" not found</code>, run: <code>forge install</code> (no args — it syncs to <code>foundry.lock</code>).</p>
+</blockquote>
+<h3 id="2-create-your-feature-branch">2. Create your feature branch</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> feature/member1-token       <span class="co"># member1 example</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># or</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> feature/member2-listings    <span class="co"># member2 example</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># or</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> feature/member3-escrow      <span class="co"># member3 example</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># or</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> feature/member4-reputation  <span class="co"># member4 example</span></span></code></pre></div>
+<p>Branch naming is <code>feature/&lt;your-member-id&gt;-&lt;slice-slug&gt;</code>. Use your exact member number.</p>
+<h3 id="3-implement-your-slice">3. Implement your slice</h3>
+<p>Edit only the files in your slice (see <a href=".github/CODEOWNERS">CODEOWNERS</a> for the exact list). Each member owns:</p>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Contract</th>
+<th>Frontend</th>
+<th>Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>member1</td>
+<td><code>contracts/IssuerRegistry.sol</code> (or <code>EnigCredit.sol</code>)</td>
+<td><code>frontend/src/modules/issuer/</code> (or <code>token/</code>)</td>
+<td><code>test/IssuerRegistry.t.sol</code></td>
+</tr>
+<tr>
+<td>member2</td>
+<td><code>contracts/RecordRegistry.sol</code> (or <code>Marketplace.sol</code> listings)</td>
+<td><code>frontend/src/modules/record/</code> (or <code>listings/</code>)</td>
+<td><code>test/RecordRegistry.t.sol</code></td>
+</tr>
+<tr>
+<td>member3</td>
+<td><code>contracts/Verification.sol</code> (or <code>Marketplace.sol</code> escrow)</td>
+<td><code>frontend/src/modules/verification/</code> (or <code>market/</code>)</td>
+<td><code>test/Verification.t.sol</code></td>
+</tr>
+<tr>
+<td>member4</td>
+<td><code>contracts/AuditTrail.sol</code> (or <code>Reputation.sol</code>)</td>
+<td><code>frontend/src/modules/audit/</code> (or <code>reputation/</code>)</td>
+<td><code>test/AuditTrail.t.sol</code></td>
+</tr>
+</tbody>
+</table>
+<p>Clear every <code>TODO(memberN)</code> in your files — the autograder deducts points for any remaining.</p>
+<h3 id="4-verify-locally-before-pushing">4. Verify locally before pushing</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> build                        <span class="co"># must return exit 0</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> test <span class="at">--match-contract</span> <span class="op">&lt;</span>YourTest<span class="op">&gt;</span> -vvv   <span class="co"># your slice&#39;s tests must be green</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> test <span class="at">-vvv</span>                    <span class="co"># full suite must also stay green</span></span></code></pre></div>
+<p>Never push a build that fails <code>forge build</code>.</p>
+<h3 id="5-commit-your-changes">5. Commit your changes</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add contracts/<span class="op">&lt;</span>YourContract<span class="op">&gt;</span>.sol <span class="dt">\</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>        frontend/src/modules/<span class="op">&lt;</span>your-module<span class="op">&gt;</span>/ <span class="dt">\</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        test/<span class="op">&lt;</span>YourTest<span class="op">&gt;</span>.t.sol <span class="dt">\</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        docs/<span class="op">&lt;</span>your-module<span class="op">&gt;</span>.md    <span class="co"># if your slice has a doc</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;feat(memberN): implement &lt;slice name&gt;&quot;</span></span></code></pre></div>
+<p>Keep commits atomic: one logical unit per commit. Do not commit <code>out/</code>, <code>cache/</code>, <code>.env</code>, or secrets.</p>
+<h3 id="6-push-your-branch">6. Push your branch</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin feature/member1-token    <span class="co"># first push (sets tracking)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push                                     <span class="co"># subsequent pushes</span></span></code></pre></div>
+<h3 id="7-open-a-pull-request-on-github">7. Open a pull request on GitHub</h3>
+<ol type="1">
+<li>Go to <code>https://github.com/enigma-group-project/&lt;Repo-Name&gt;</code></li>
+<li>GitHub will show a <strong>"Compare &amp; pull request"</strong> banner — click it.</li>
+<li>Set <strong>base</strong> branch to <code>develop</code> (not <code>main</code>).</li>
+<li>Fill in the PR template (all checkboxes must be ticked or N/A'd with a reason).</li>
+<li>Attach a screenshot or paste <code>forge test</code> output in the <strong>Evidence</strong> section.</li>
+<li>Submit — CI runs automatically.</li>
+</ol>
+<hr />
+<h2 id="pr-template-checklist-required">PR template checklist (required)</h2>
+<p>The <code>.github/pull_request_template.md</code> pre-fills when you open a PR. Every box must be addressed:</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>What "done" looks like</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 smart-contract change</td>
+<td>Your <code>.sol</code> file with no <code>TODO(memberN)</code> left</td>
+</tr>
+<tr>
+<td>1 frontend change</td>
+<td>Your module's <code>.js</code> / <code>.html</code> calling the contract</td>
+</tr>
+<tr>
+<td>1 test file</td>
+<td>Tests pass: <code>forge test --match-contract &lt;YourTest&gt;</code> green</td>
+</tr>
+<tr>
+<td>1 documentation update</td>
+<td>Your module doc in <code>docs/</code> updated or added</td>
+</tr>
+<tr>
+<td>1 screenshot or test output</td>
+<td>Pasted in the Evidence section of the PR body</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ci-gates">CI gates</h2>
+<p>Every PR triggers two workflows automatically:</p>
+<table>
+<thead>
+<tr>
+<th>Workflow</th>
+<th>What it checks</th>
+<th>Required to merge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CI</strong> (<code>.github/workflows/ci.yml</code>)</td>
+<td><code>forge build</code> + <code>forge test</code></td>
+<td>Yes — PR is blocked if red</td>
+</tr>
+<tr>
+<td><strong>Auto-Grade</strong> (<code>.github/workflows/grade.yml</code>)</td>
+<td>Full rubric (compile, tests, files, docs, hygiene)</td>
+<td>Informational — see score in Actions tab</td>
+</tr>
+</tbody>
+</table>
+<p>Fix any CI failure before requesting review. Do not ask reviewers to look at a red PR.</p>
+<hr />
+<h2 id="code-review-and-codeowners">Code review and CODEOWNERS</h2>
+<p>Branch protection requires <strong>at least one approving review</strong> before merge, and <strong>CODEOWNERS review</strong> for files in your slice directory.</p>
+<ul>
+<li>Your PR will be auto-assigned to your CODEOWNER (set in <code>.github/CODEOWNERS</code>).</li>
+<li>Reviewers: use the <strong>reviewer checklist</strong> in the PR template (<code>forge build</code> green, <code>forge test</code> green, no PII, targets <code>develop</code>, CEI respected).</li>
+<li>Respond to review comments within 24 hours. Push fixups to the same branch; GitHub re-requests review automatically.</li>
+</ul>
+<hr />
+<h2 id="after-your-pr-is-merged">After your PR is merged</h2>
+<ol type="1">
+<li>Delete your feature branch (GitHub shows a <strong>"Delete branch"</strong> button after merge).</li>
+<li>Update your local <code>develop</code>:
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout develop</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull origin develop</span></code></pre></div></li>
+<li>Start the next iteration from the updated <code>develop</code>.</li>
+</ol>
+<hr />
+<h2 id="develop--main-instructor-only">develop → main (instructor only)</h2>
+<p>When all four slice PRs are merged to <code>develop</code> and the group is ready to submit:</p>
+<ol type="1">
+<li>The instructor (or member1 as Tech Lead, with instructor approval) opens a final PR: <code>develop → main</code>.</li>
+<li>Full CI must be green.</li>
+<li>Instructor reviews and merges. This is the graded snapshot.</li>
+</ol>
+<p>Members do <strong>not</strong> open PRs directly to <code>main</code>.</p>
+<hr />
+<h2 id="common-mistakes">Common mistakes</h2>
+<table>
+<thead>
+<tr>
+<th>Mistake</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pushed directly to <code>develop</code></td>
+<td>Open a PR from a feature branch instead; instructor rolls back direct pushes</td>
+</tr>
+<tr>
+<td>PR targets <code>main</code> instead of <code>develop</code></td>
+<td>Close and re-open with the correct base</td>
+</tr>
+<tr>
+<td><code>forge build</code> failing in CI</td>
+<td>Run <code>forge build</code> locally and fix errors before pushing</td>
+</tr>
+<tr>
+<td>Evidence section left blank</td>
+<td>Paste <code>forge test -vvv</code> output or a screenshot; autograder also checks</td>
+</tr>
+<tr>
+<td>Committed <code>out/</code> or <code>cache/</code></td>
+<td>These are in <code>.gitignore</code>; run <code>git rm -r --cached out/ cache/</code> and re-commit</td>
+</tr>
+<tr>
+<td>Edited another member's files</td>
+<td>Revert those changes; CODEOWNERS review will catch cross-slice edits</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quick-reference">Quick reference</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start a new slice</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout develop <span class="kw">&amp;&amp;</span> <span class="fu">git</span> pull origin develop</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> feature/memberN-<span class="op">&lt;</span>slice<span class="op">&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Before every push</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> build <span class="kw">&amp;&amp;</span> <span class="ex">forge</span> test <span class="at">-vvv</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Push and open PR</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin feature/memberN-<span class="op">&lt;</span>slice<span class="op">&gt;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># → open PR on GitHub, base = develop</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># After merge</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout develop <span class="kw">&amp;&amp;</span> <span class="fu">git</span> pull origin develop</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">-d</span> feature/memberN-<span class="op">&lt;</span>slice<span class="op">&gt;</span></span></code></pre></div>
+
+</main>
+<footer>Enigma-Decentralized-Student-Marketplace · docs generated from Markdown by <code>scripts/build-docs.py</code></footer>
+</body></html>

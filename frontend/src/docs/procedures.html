@@ -1,0 +1,289 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Procedures · Enigma Docs</title>
+<link rel="stylesheet" href="docs.css"></head>
+<body>
+<header class="topbar"><a class="brand" href="../index.html">⟵ Enigma Demo</a><nav><a href="index.html">Docs Home</a><a href="network-tests.html">Network Tests</a><a href="contributing.html">Workflow</a><a href="procedures.html">Procedures</a><a href="../tracker/index.html">Tracker</a></nav></header>
+<main class="doc">
+<h1 id="test_tube-build--validate--troubleshoot--test--enigma-decentralized-student-marketplace">🧪 Build · Validate · Troubleshoot · Test — Enigma-Decentralized-Student-Marketplace</h1>
+<blockquote>
+<p><strong>enigma-group-project</strong> · student template (implement the TODOs) Repo: <a href="https://github.com/enigma-group-project/Enigma-Decentralized-Student-Marketplace">https://github.com/enigma-group-project/Enigma-Decentralized-Student-Marketplace</a> · GUI: <a href="https://enigma-group-project.github.io/Enigma-Decentralized-Student-Marketplace/">https://enigma-group-project.github.io/Enigma-Decentralized-Student-Marketplace/</a></p>
+</blockquote>
+<p>This repo has three vertical slices (one per member). Two contracts (<code>EnigCredit</code> + <code>Marketplace</code>) power an on-chain token economy with escrow:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Slice</th>
+<th>Contract</th>
+<th>Test this slice</th>
+<th>Frontend page</th>
+<th>Key functions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Token + Wallet</td>
+<td><code>contracts/EnigCredit.sol</code></td>
+<td><code>forge test --match-contract EnigCreditTest</code></td>
+<td><code>frontend/src/modules/token/</code></td>
+<td><code>mint / transfer / approve</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Listings</td>
+<td><code>contracts/Marketplace.sol</code></td>
+<td><code>forge test --match-contract ListingsTest</code></td>
+<td><code>frontend/src/modules/listings/</code></td>
+<td><code>createListing / getListing / totalListings</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Escrow + Ratings</td>
+<td><code>contracts/Marketplace.sol</code></td>
+<td><code>forge test --match-contract EscrowTest</code></td>
+<td><code>frontend/src/modules/market/</code></td>
+<td><code>purchaseItem / confirmDelivery / cancelPurchase / rateUser</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><code>Marketplace.sol</code> is co-owned by member2 (listings) + member3 (escrow/ratings).</p>
+</blockquote>
+<hr />
+<h2 id="a-local--compile-validate-troubleshoot-test-the-gui">A. Local — compile, validate, troubleshoot, test the GUI</h2>
+<h3 id="a0-one-time-toolchain-macos">A0. One-time toolchain (macOS)</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/bin/bash</span> <span class="at">-c</span> <span class="st">&quot;</span><span class="va">$(</span><span class="ex">curl</span> <span class="at">-fsSL</span> https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh<span class="va">)</span><span class="st">&quot;</span>  <span class="co"># if no brew</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install git gh jq node</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-L</span> https://foundry.paradigm.xyz <span class="kw">|</span> <span class="fu">bash</span> <span class="kw">&amp;&amp;</span> <span class="bu">source</span> ~/.zshenv <span class="dv">2</span><span class="op">&gt;</span>/dev/null<span class="kw">;</span> <span class="ex">foundryup</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> <span class="at">--version</span>        <span class="co"># ✅ prints a forge version</span></span></code></pre></div>
+<h3 id="a1-get-the-code">A1. Get the code</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--recursive</span> https://github.com/enigma-group-project/Enigma-Decentralized-Student-Marketplace.git</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> Enigma-Decentralized-Student-Marketplace</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule update <span class="at">--init</span> <span class="at">--recursive</span>   <span class="co"># restores pinned deps (OZ v5.1.0, forge-std) per foundry.lock</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Fallback if you cloned without --recursive:</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> install                              <span class="co"># no args — syncs to foundry.lock</span></span></code></pre></div>
+<h3 id="a2-compile">A2. Compile</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> build            <span class="co"># ✅ &quot;Compiler run successful!&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> build <span class="at">--sizes</span>    <span class="co"># per-contract bytecode sizes</span></span></code></pre></div>
+<h3 id="a3-validate-tests">A3. Validate (tests)</h3>
+<p><code>forge test -vvv</code> → tests <strong>fail by design</strong> until you implement the <code>TODO(memberN)</code> markers. Implement a slice, then <code>forge test --match-contract &lt;Slice&gt;Test</code> until green.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> test <span class="at">-vvv</span>                                  <span class="co"># all slices</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> test <span class="at">--match-contract</span> EnigCreditTest       <span class="co"># slice 1</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> test <span class="at">--match-contract</span> ListingsTest         <span class="co"># slice 2</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> test <span class="at">--match-contract</span> EscrowTest           <span class="co"># slice 3</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> test <span class="at">--gas-report</span>                          <span class="co"># gas numbers for the evaluation table</span></span></code></pre></div>
+<h3 id="a4-troubleshoot">A4. Troubleshoot</h3>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>forge: command not found</code></td>
+<td>Foundry not installed/loaded</td>
+<td><code>curl -L https://foundry.paradigm.xyz | bash</code> then <code>foundryup</code>; reopen shell</td>
+</tr>
+<tr>
+<td><code>Source "forge-std/Test.sol" not found</code></td>
+<td>dep missing on fresh clone</td>
+<td><code>forge install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts@v5.1.0</code></td>
+</tr>
+<tr>
+<td><code>Source "@openzeppelin/contracts/…" not found</code></td>
+<td>OZ not installed</td>
+<td><code>forge install OpenZeppelin/openzeppelin-contracts@v5.1.0</code></td>
+</tr>
+<tr>
+<td><code>unexpected argument '--no-commit'</code></td>
+<td>old flag, removed in forge 1.7+</td>
+<td>run <code>forge install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts@v5.1.0</code> (no <code>--no-commit</code>)</td>
+</tr>
+<tr>
+<td><code>Source file requires different compiler version</code></td>
+<td>wrong solc</td>
+<td><code>foundry.toml</code> pins <code>0.8.20</code>; run <code>foundryup</code> (the IDE Solidity plugin may warn — Foundry is authoritative)</td>
+</tr>
+<tr>
+<td>test reverts <code>TODO(memberN): implement …</code></td>
+<td>slice not implemented yet</td>
+<td>implement that function in <code>contracts/EnigCredit.sol</code> or <code>contracts/Marketplace.sol</code></td>
+</tr>
+<tr>
+<td><code>Connection refused</code> on deploy</td>
+<td>Anvil not running</td>
+<td>start <code>anvil</code> in a second terminal</td>
+</tr>
+<tr>
+<td><code>No such file or directory (os error 2)</code> running <code>forge script</code></td>
+<td>command run outside repo root</td>
+<td><code>cd</code> to repo root (the folder containing <code>script/Deploy.s.sol</code>) and rerun</td>
+</tr>
+<tr>
+<td><code>You seem to be using Foundry's default sender</code></td>
+<td>broadcast without explicit sender</td>
+<td>use <code>--sender &lt;anvil-account0-address&gt; --unlocked</code></td>
+</tr>
+<tr>
+<td>MetaMask "wrong network"</td>
+<td>chain mismatch</td>
+<td>Anvil = chainId <strong>31337</strong> (<code>http://127.0.0.1:8545</code>); Sepolia = <strong>11155111</strong></td>
+</tr>
+<tr>
+<td>MetaMask labels the local net <strong>"GoChain Testnet"</strong> / symbol <strong>"GO"</strong></td>
+<td>GoChain testnet also uses chainId <strong>31337</strong></td>
+<td>cosmetic only — it's still your local Anvil chain; gas/fees shown in "GO" are fake. Proceed normally</td>
+</tr>
+<tr>
+<td>Mint reverts <code>execution reverted (unknown custom error) … CALL_EXCEPTION</code></td>
+<td>minting from a <strong>non-owner</strong> account (e.g. MetaMask "Account 1")</td>
+<td>only the deployer/owner can <code>mint</code>. Import Anvil <strong>account[0]</strong> as the owner — see <strong>A5b</strong></td>
+</tr>
+<tr>
+<td><code>transferFrom</code> reverts on <code>purchaseItem</code></td>
+<td>buyer didn't <code>approve</code> first</td>
+<td>call <code>EnigCredit.approve(marketplaceAddress, amount)</code> before <code>purchaseItem</code></td>
+</tr>
+<tr>
+<td>GUI connect fails / <code>formatJson</code> error</td>
+<td>ABI bundle missing one contract (often <code>Reputation</code>)</td>
+<td>regenerate <code>frontend/src/shared/abi.js</code> with all 3 contracts: <code>EnigCredit</code>, <code>Marketplace</code>, <code>Reputation</code></td>
+</tr>
+<tr>
+<td>GUI buttons do nothing / reads empty</td>
+<td>ABI/addresses not wired</td>
+<td>regenerate <code>frontend/src/shared/abi.js</code> and update deployed addresses in <code>frontend/src/shared/config.js</code></td>
+</tr>
+<tr>
+<td>Pages <strong>404</strong></td>
+<td>Pages source not set</td>
+<td>repo must be public; <strong>Settings ▸ Pages ▸ Source = GitHub Actions</strong>; wait for the <strong>Deploy Pages</strong> run</td>
+</tr>
+<tr>
+<td>CI: "workflow not allowed"</td>
+<td>cross-org reusable workflow blocked</td>
+<td>org <strong>Settings ▸ Actions ▸ General</strong> → allow all actions / <code>cyber-enigma/*</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="a5-test-the-gui-locally-anvil">A5. Test the GUI locally (Anvil)</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1) terminal A — from repo root, start local chain</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">anvil</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2) terminal B — from repo root, deploy with explicit sender</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> script script/Deploy.s.sol:Deploy <span class="dt">\</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--rpc-url</span> http://127.0.0.1:8545 <span class="dt">\</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--broadcast</span> <span class="dt">\</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--sender</span> 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 <span class="dt">\</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">--unlocked</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 3) regenerate ABI bundle from build output (include ALL 3 contracts)</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> frontend/src/shared/abi.js <span class="op">&lt;&lt;EOF</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="st">export const ABIS = {</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="st">  EnigCredit:  </span><span class="va">$(</span><span class="ex">jq</span> <span class="at">-c</span> .abi out/EnigCredit.sol/EnigCredit.json<span class="va">)</span><span class="st">,</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="st">  Marketplace: </span><span class="va">$(</span><span class="ex">jq</span> <span class="at">-c</span> .abi out/Marketplace.sol/Marketplace.json<span class="va">)</span><span class="st">,</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="st">  Reputation:  </span><span class="va">$(</span><span class="ex">jq</span> <span class="at">-c</span> .abi out/Reputation.sol/Reputation.json<span class="va">)</span><span class="st">,</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="st">};</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 4) auto-update anvil addresses in config.js from latest deploy artifact</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="va">RUN</span><span class="op">=</span><span class="st">&#39;broadcast/Deploy.s.sol/31337/run-latest.json&#39;</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="va">CFG</span><span class="op">=</span><span class="st">&#39;frontend/src/shared/config.js&#39;</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="va">ENIG</span><span class="op">=</span><span class="va">$(</span><span class="ex">jq</span> <span class="at">-r</span> <span class="st">&#39;.transactions[] | select(.transactionType==&quot;CREATE&quot; and .contractName==&quot;EnigCredit&quot;) | .contractAddress&#39;</span> <span class="st">&quot;</span><span class="va">$RUN</span><span class="st">&quot;</span> <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-n1</span><span class="va">)</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="va">MARK</span><span class="op">=</span><span class="va">$(</span><span class="ex">jq</span> <span class="at">-r</span> <span class="st">&#39;.transactions[] | select(.transactionType==&quot;CREATE&quot; and .contractName==&quot;Marketplace&quot;) | .contractAddress&#39;</span> <span class="st">&quot;</span><span class="va">$RUN</span><span class="st">&quot;</span> <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-n1</span><span class="va">)</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="va">REP</span><span class="op">=</span><span class="va">$(</span><span class="ex">jq</span> <span class="at">-r</span> <span class="st">&#39;.transactions[] | select(.transactionType==&quot;CREATE&quot; and .contractName==&quot;Reputation&quot;) | .contractAddress&#39;</span> <span class="st">&quot;</span><span class="va">$RUN</span><span class="st">&quot;</span> <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-n1</span><span class="va">)</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="fu">perl</span> <span class="at">-0777</span> <span class="at">-i</span> <span class="at">-pe</span> <span class="st">&#39;s#addresses:\s*\{[^}]*\},#addresses: { EnigCredit: &quot;&#39;</span><span class="va">$ENIG</span><span class="st">&#39;&quot;, Marketplace: &quot;&#39;</span><span class="va">$MARK</span><span class="st">&#39;&quot;, Reputation: &quot;&#39;</span><span class="va">$REP</span><span class="st">&#39;&quot; },#s&#39;</span> <span class="st">&quot;</span><span class="va">$CFG</span><span class="st">&quot;</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co"># 5) terminal C — serve frontend</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> frontend/src</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> http.server 8080</span></code></pre></div>
+<p>In MetaMask:</p>
+<ul>
+<li>add network <strong>RPC <code>http://127.0.0.1:8545</code>, Chain ID <code>31337</code></strong>, symbol <code>ETH</code></li>
+<li>import Anvil <strong>account[0] private key</strong> as Owner (can mint ENGC)</li>
+<li>connect site and switch to the local Anvil network before pressing UI buttons</li>
+</ul>
+<p>Local GUI URLs:</p>
+<ul>
+<li>Root: <code>http://localhost:8080/</code></li>
+<li>Token: <code>http://localhost:8080/modules/token/index.html</code></li>
+<li>Listings: <code>http://localhost:8080/modules/listings/index.html</code></li>
+<li>Market: <code>http://localhost:8080/modules/market/index.html</code></li>
+</ul>
+<p>Walk the three module pages in order:</p>
+<ol type="1">
+<li><strong>Token</strong> — mint ENGC to buyer and seller wallets</li>
+<li><strong>Listings</strong> — seller creates a listing; copy the listing ID</li>
+<li><strong>Market</strong> — buyer approves ENGC spend → <code>purchaseItem</code> → seller confirms delivery → optionally <code>rateUser</code></li>
+</ol>
+<h3 id="a5b-token-module--connect-metamask--mint-engc-screenshot-walkthrough">A5b. Token module — connect MetaMask &amp; mint ENGC (screenshot walkthrough)</h3>
+<blockquote>
+<p>Page: <code>http://localhost:8080/modules/token/index.html</code> · contract: <code>EnigCredit</code> · screenshots live in <a href="resources/token-wallet/"><code>resources/token-wallet/</code></a> (see that folder's README for the filename → step map). 🖼️ <strong>Illustrated walkthrough (both networks):</strong> see <a href="network-tests.md"><code>network-tests.md</code></a>. <strong>Only the contract owner can mint.</strong> The owner is whoever deployed — when you deploy with Anvil <code>account[0]</code> (<code>--sender 0xf39fd6…92266</code> in A5), that account is the owner.</p>
+</blockquote>
+<p><strong>1 — Connect the site to MetaMask</strong> Click <strong>Connect wallet</strong>. In the MetaMask dialog, on the <strong>Permissions</strong> tab confirm both: <em>See your accounts</em> and <em>Use your enabled networks</em>. If the local chain isn't listed, hit <strong>Edit</strong> beside <em>Use your enabled networks</em> → tick <strong>GoChain Testnet</strong> (this is your local Anvil chain — see note below) → <strong>Update</strong>, then <strong>Connect</strong>.</p>
+<blockquote>
+<p>🛈 <strong>Why "GoChain Testnet"?</strong> MetaMask labels chainId <strong>31337</strong> as <em>GoChain Testnet</em> with a <strong>GO</strong> currency symbol because GoChain's public testnet shares that chainId with Anvil. It's purely cosmetic — you are on your local Anvil chain, and the "GO" gas amounts are fake dev ETH.</p>
+</blockquote>
+<p><strong>2 — A non-owner mint fails (expected)</strong> With a regular MetaMask account (e.g. <em>Account 1</em> <code>0x58ee…6202b</code>) connected, filling the form and pressing <strong>Mint ENGC</strong> reverts. The page prints a long red error ending in <code>code=CALL_EXCEPTION</code>. This is the <code>onlyOwner</code> guard doing its job — that account isn't the token owner.</p>
+<p><strong>3 — Import the Anvil owner account into MetaMask</strong> Open the account menu → <strong>Add wallet → Import an account (Via a private key)</strong>. Paste <strong>account[0]'s private key</strong> — Anvil prints it in the terminal where you ran <code>anvil</code> (it's the account whose address is <code>0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266</code>, the <code>--sender</code> you deployed with). Press <strong>Import</strong>.</p>
+<p>The imported account shows the full initial supply, <strong>1,000,000 ENGC</strong> (it received the deployer mint).</p>
+<p><strong>4 — Mint as the owner</strong> Reconnect / select the imported owner account. In <strong>Mint EnigCredit (owner only)</strong> enter a recipient (<code>0x…</code>) and an amount (e.g. <code>100</code>) → <strong>Mint ENGC</strong>. MetaMask raises a <strong>Transaction request</strong> <em>Interacting with</em> <code>0x5FbD…80aa3</code> (the <code>EnigCredit</code> address from <code>config.js</code>) → <strong>Confirm</strong>.</p>
+<p>On success the page shows ✅ <code>Minted 100 ENGC to 0x… · New balance: 1000100.0 ENGC</code> and MetaMask's <strong>Activity</strong> lists <strong>Mint · Confirmed</strong>.</p>
+<blockquote>
+<p>Mint ENGC to your buyer and seller wallets here, then continue to <strong>Listings</strong> and <strong>Market</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="b-remote--compile-validate-troubleshoot-test-the-gui-on-github">B. Remote — compile, validate, troubleshoot, test the GUI (on GitHub)</h2>
+<h3 id="b1-compile--validate-via-ci">B1. Compile &amp; validate via CI</h3>
+<p>Every push / PR triggers <strong><code>.github/workflows/ci.yml</code></strong>. Open the repo's <strong>Actions</strong> tab → latest <strong>CI</strong> run → the <strong>build-test</strong> job runs <code>forge build</code> + <code>forge test</code>. A green ✔ = compiles and tests ran (see Auto-Grade for the score).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> run list  <span class="at">-R</span> enigma-group-project/Enigma-Decentralized-Student-Marketplace <span class="at">--workflow</span> ci.yml <span class="at">--limit</span> 1</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> run watch <span class="at">-R</span> enigma-group-project/Enigma-Decentralized-Student-Marketplace</span></code></pre></div>
+<h3 id="b2-troubleshoot-remotely">B2. Troubleshoot remotely</h3>
+<p>Open the failed run → <strong>build-test</strong> → expand the red step to read the log, or:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> run view <span class="at">-R</span> enigma-group-project/Enigma-Decentralized-Student-Marketplace <span class="at">--log-failed</span></span></code></pre></div>
+<p>Same root causes as the table in <strong>A4</strong> (most often: OZ install missing or a Solidity error).</p>
+<h3 id="b3-test-the-gui-on-github-pages">B3. Test the GUI on GitHub Pages</h3>
+<ul>
+<li>🌐 <strong><a href="https://enigma-group-project.github.io/Enigma-Decentralized-Student-Marketplace/">https://enigma-group-project.github.io/Enigma-Decentralized-Student-Marketplace/</a></strong> — the live three-module web app (published by <code>.github/workflows/pages.yml</code> from <code>frontend/src</code>). Reads work with no wallet on the configured network; writes use the visitor's MetaMask. For a hosted on-chain demo, deploy to <strong>Sepolia</strong> (README §Hosted demo), paste the addresses into <code>config.js</code>, set <code>DEFAULT_NETWORK="sepolia"</code>, and push.</li>
+</ul>
+<h4 id="b3a-get-a-sepolia-rpc-url-alchemy">B3a. Get a Sepolia RPC URL (Alchemy)</h4>
+<p>The hosted demo deploys against a Sepolia RPC endpoint. The free tier from <a href="https://dashboard.alchemy.com">Alchemy</a> works well:</p>
+<ol type="1">
+<li><strong>Create new app</strong> — name it e.g. <code>Enigma-Marketplace-Sepolia</code>, use case <em>Infra &amp; Tooling</em>.</li>
+<li><strong>Choose chains</strong> — select <strong>Ethereum → Sepolia</strong>.</li>
+<li>On the app page, copy the <strong>HTTPS Endpoint URL</strong> (<code>https://eth-sepolia.g.alchemy.com/v2/&lt;API-KEY&gt;</code>).</li>
+</ol>
+<p><img src="resources/token-wallet/22-alchemy-app-rpc.png" alt="Alchemy endpoint URL" /></p>
+<p>Then deploy with that URL (keep the key out of git — export it in your shell):</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SEPOLIA_RPC_URL</span><span class="op">=</span><span class="st">&quot;https://eth-sepolia.g.alchemy.com/v2/&lt;API-KEY&gt;&quot;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">PRIVATE_KEY</span><span class="op">=</span><span class="st">&quot;0x&lt;deployer-key-with-sepolia-ETH&gt;&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> script script/Deploy.s.sol:Deploy <span class="at">--rpc-url</span> <span class="va">$SEPOLIA_RPC_URL</span> <span class="at">--private-key</span> <span class="va">$PRIVATE_KEY</span> <span class="at">--broadcast</span> <span class="at">--verify</span></span></code></pre></div>
+<p>Paste the printed Sepolia addresses into <code>frontend/src/shared/config.js</code>, set <code>DEFAULT_NETWORK="sepolia"</code>, and push.</p>
+<h3 id="b4-auto-grade-score-template-only">B4. Auto-Grade score (template only)</h3>
+<p>Every push runs <strong>Auto-Grade</strong> (<code>.github/workflows/grade.yml</code>, a reusable workflow from <code>cyber-enigma/autograder</code>). Open <strong>Actions ▸ Auto-Grade ▸ latest run ▸ Summary</strong> to see the score table (a fresh skeleton ≈ <strong>57/100</strong>; it rises as tests pass and <code>TODO(memberN)</code> markers are cleared).</p>
+<hr />
+<h2 id="c-self-evaluation-with-the-auto-grader-students">C. Self-evaluation with the auto-grader (students)</h2>
+<p>Same rubric the TA uses (defined in <code>cyber-enigma/autograder/rubric.yml</code>): compiles 15 · tests 35 · required files 15 · TODOs cleared 15 · docs 10 · hygiene 10.</p>
+<p><strong>Local (fastest, offline):</strong></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts@v5.1.0</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/grade.py            <span class="co"># prints the score table; writes grade.json</span></span></code></pre></div>
+<p><code>scripts/grade.py</code> is a bundled copy of the canonical grader for quick self-checks.</p>
+<p><strong>On GitHub (the official rubric, fetched at grade time):</strong></p>
+<ul>
+<li>Every push/PR runs <strong>Auto-Grade</strong> → <strong>Actions ▸ Auto-Grade ▸ latest run ▸ Summary</strong> for the score table (+ <code>grade-report.md</code> / <code>grade.json</code> artifacts).</li>
+<li>Run it on demand without a code change:
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> workflow run <span class="st">&quot;Auto-Grade&quot;</span> <span class="at">-R</span> enigma-group-project/Enigma-Decentralized-Student-Marketplace     <span class="co"># or the Actions ▸ Auto-Grade ▸ &quot;Run workflow&quot; button</span></span></code></pre></div>
+This calls <code>cyber-enigma/autograder</code>'s reusable workflow, so you always score against the current rubric (you can't silently fork it).</li>
+</ul>
+<p><strong>Raise your score:</strong> clear every <code>TODO(memberN)</code> marker (impl 15), make <code>forge test</code> pass (tests 35), keep the 4 module docs + README evaluation table filled (docs 10 + hygiene 10).</p>
+<hr />
+<p><em>Procedure doc generated for the Enigma framework. Compile = <code>forge build</code> · validate = <code>forge test</code> · GUI = the URL above.</em></p>
+
+</main>
+<footer>Enigma-Decentralized-Student-Marketplace · docs generated from Markdown by <code>scripts/build-docs.py</code></footer>
+</body></html>

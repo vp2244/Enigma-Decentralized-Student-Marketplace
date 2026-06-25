@@ -125,6 +125,7 @@ Walk the three module pages in order:
 
 > Page: `http://localhost:8080/modules/token/index.html` · contract: `EnigCredit` · screenshots live in
 > [`resources/token-wallet/`](resources/token-wallet/) (see that folder's README for the filename → step map).
+> 🖼️ **Illustrated walkthrough (both networks):** see [`network-tests.md`](network-tests.md).
 > **Only the contract owner can mint.** The owner is whoever deployed — when you deploy with Anvil
 > `account[0]` (`--sender 0xf39fd6…92266` in A5), that account is the owner.
 
@@ -134,8 +135,6 @@ Click **Connect wallet**. In the MetaMask dialog, on the **Permissions** tab con
 beside *Use your enabled networks* → tick **GoChain Testnet** (this is your local Anvil chain — see note
 below) → **Update**, then **Connect**.
 
-![Connect → Permissions](resources/token-wallet/01-connect-permissions.png)
-![Edit enabled networks](resources/token-wallet/03-edit-networks-gochain.png)
 
 > 🛈 **Why "GoChain Testnet"?** MetaMask labels chainId **31337** as *GoChain Testnet* with a **GO**
 > currency symbol because GoChain's public testnet shares that chainId with Anvil. It's purely cosmetic —
@@ -146,31 +145,25 @@ With a regular MetaMask account (e.g. *Account 1* `0x58ee…6202b`) connected, f
 **Mint ENGC** reverts. The page prints a long red error ending in `code=CALL_EXCEPTION`. This is the
 `onlyOwner` guard doing its job — that account isn't the token owner.
 
-![Non-owner mint revert](resources/token-wallet/10-mint-revert-nonowner.png)
 
 **3 — Import the Anvil owner account into MetaMask**
 Open the account menu → **Add wallet → Import an account (Via a private key)**. Paste **account[0]'s
 private key** — Anvil prints it in the terminal where you ran `anvil` (it's the account whose address is
 `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`, the `--sender` you deployed with). Press **Import**.
 
-![Add wallet → import](resources/token-wallet/11-import-add-wallet.png)
-![Paste private key](resources/token-wallet/12-import-private-key.png)
 
 The imported account shows the full initial supply, **1,000,000 ENGC** (it received the deployer mint).
 
-![Owner balance 1,000,000 ENGC](resources/token-wallet/13-owner-imported-balance.png)
 
 **4 — Mint as the owner**
 Reconnect / select the imported owner account. In **Mint EnigCredit (owner only)** enter a recipient
 (`0x…`) and an amount (e.g. `100`) → **Mint ENGC**. MetaMask raises a **Transaction request** *Interacting
 with* `0x5FbD…80aa3` (the `EnigCredit` address from `config.js`) → **Confirm**.
 
-![Confirm mint tx](resources/token-wallet/14-mint-confirm-tx.png)
 
 On success the page shows ✅ `Minted 100 ENGC to 0x… · New balance: 1000100.0 ENGC` and MetaMask's
 **Activity** lists **Mint · Confirmed**.
 
-![Mint success](resources/token-wallet/15-mint-success.png)
 
 > Mint ENGC to your buyer and seller wallets here, then continue to **Listings** and **Market**.
 
@@ -205,8 +198,6 @@ The hosted demo deploys against a Sepolia RPC endpoint. The free tier from [Alch
 2. **Choose chains** — select **Ethereum → Sepolia**.
 3. On the app page, copy the **HTTPS Endpoint URL** (`https://eth-sepolia.g.alchemy.com/v2/<API-KEY>`).
 
-![Alchemy create app](resources/token-wallet/20-alchemy-create-app.png)
-![Alchemy choose Sepolia](resources/token-wallet/21-alchemy-choose-chain.png)
 ![Alchemy endpoint URL](resources/token-wallet/22-alchemy-app-rpc.png)
 
 Then deploy with that URL (keep the key out of git — export it in your shell):

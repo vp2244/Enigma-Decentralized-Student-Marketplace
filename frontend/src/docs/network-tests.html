@@ -1,0 +1,101 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Network Tests · Enigma Docs</title>
+<link rel="stylesheet" href="docs.css"></head>
+<body>
+<header class="topbar"><a class="brand" href="../index.html">⟵ Enigma Demo</a><nav><a href="index.html">Docs Home</a><a href="network-tests.html">Network Tests</a><a href="contributing.html">Workflow</a><a href="procedures.html">Procedures</a><a href="../tracker/index.html">Tracker</a></nav></header>
+<main class="doc">
+<h1 id="validating-slice-1-token--wallet--local-anvil--hosted-sepolia">Validating Slice 1 (Token + Wallet) — Local Anvil &amp; Hosted Sepolia</h1>
+<blockquote>
+<p>Audience: every team member. This guide shows how to validate the <strong>EnigCredit</strong> token (mint · owner-only · balance) end-to-end on <strong>two networks</strong>, using the <strong>same</strong> GUI:</p>
+<table>
+<thead>
+<tr>
+<th>Network</th>
+<th>GUI you use</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Local Anvil</strong> (chainId 31337)</td>
+<td>the page served <strong>locally</strong> at <code>http://localhost:8080</code></td>
+<td>local HTTP ↔︎ local chain — no browser security limits</td>
+</tr>
+<tr>
+<td><strong>Hosted Sepolia</strong> (chainId 11155111)</td>
+<td>the <strong>GitHub Pages</strong> site <code>https://&lt;user&gt;.github.io/Enigma-Decentralized-Student-Marketplace/</code></td>
+<td>public HTTPS page ↔︎ public HTTPS RPC</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Golden rule — only the contract <em>owner</em> can <code>mint</code>.</strong> The owner is whoever <strong>deployed</strong>: on Anvil that's account[0] (<code>0xf39F…2266</code>); on Sepolia it's the wallet you deployed with. A non-owner <code>mint</code> reverts with <code>execution reverted … CALL_EXCEPTION</code> (the <code>onlyOwner</code> guard).</p>
+</blockquote>
+<hr />
+<h2 id="a--local-anvil-network-test">A · Local Anvil Network Test</h2>
+<p>Realistic local-dev flow: run a throwaway chain, deploy, serve the page, drive it with MetaMask.</p>
+<h3 id="a1-start-the-chain--deploy">A1. Start the chain &amp; deploy</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># terminal 1 — local chain (accounts pre-funded, deterministic addresses)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">anvil</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># terminal 2 — deploy from the repo root (account[0] = deployer = owner)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> script script/Deploy.s.sol:Deploy <span class="dt">\</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--rpc-url</span> http://127.0.0.1:8545 <span class="dt">\</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--broadcast</span> <span class="dt">\</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--sender</span> 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 <span class="dt">\</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">--unlocked</span></span></code></pre></div>
+<p>Because account[0] deploys in a fixed order, the printed addresses match the <strong><code>anvil</code> block in <code>frontend/src/shared/config.js</code></strong> out of the box (EnigCredit <code>0x5fbd…80aa3</code>). The constructor mints the <strong>1,000,000 ENGC</strong> initial supply to the deployer.</p>
+<h3 id="a2-serve-the-gui">A2. Serve the GUI</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> frontend/src <span class="kw">&amp;&amp;</span> <span class="ex">python3</span> <span class="at">-m</span> http.server 8080</span></code></pre></div>
+<h3 id="a3-point-metamask-at-the-local-chain">A3. Point MetaMask at the local chain</h3>
+<ul>
+<li>Add a network: RPC <code>http://127.0.0.1:8545</code>, <strong>chainId 31337</strong>, then <strong>import account[0]'s private key</strong> (Anvil prints it on startup) as the owner.</li>
+<li>ℹ️ MetaMask labels chainId 31337 as <strong>"GoChain Testnet"</strong> with a <strong>"GO"</strong> symbol — that's cosmetic (GoChain's testnet shares the chainId). It's still your local Anvil chain; the "GO" gas is fake.</li>
+</ul>
+<h3 id="a4-connect--mint">A4. Connect &amp; mint</h3>
+<p>Open <strong><code>http://localhost:8080/modules/token/index.html</code></strong>, choose <strong>"Local Anvil (dev)"</strong> in the Network dropdown, <strong>Connect wallet</strong> (balance shows your ENGC), then fill the mint form and <strong>Mint ENGC</strong> → MetaMask <strong>Confirm</strong>.</p>
+<p><img src="resources/token-wallet/anvil-mint-confirm.png" alt="Anvil: mint → MetaMask Confirm" /></p>
+<p>On success the page prints <code>✅ Minted … New balance: …</code>. Switch MetaMask to a <strong>non-owner</strong> account and try again → it reverts with <code>CALL_EXCEPTION</code> (proof the <code>onlyOwner</code> guard works).</p>
+<blockquote>
+<p>✅ <strong>Validated:</strong> owner mint succeeds, balance updates, non-owner mint is rejected — all on your local chain.</p>
+</blockquote>
+<hr />
+<h2 id="b--hosted-sepolia-network-test-github-pages">B · Hosted Sepolia Network Test (GitHub Pages)</h2>
+<p>Same contract and UI on a <strong>public</strong> testnet, driven through the <strong>hosted</strong> site. Reads/writes are real on-chain transactions.</p>
+<h3 id="b1-a-funded-deployer-wallet">B1. A funded deployer wallet</h3>
+<p>Create a <strong>throwaway</strong> MetaMask account (this becomes the Sepolia owner) and fund it with Sepolia ETH.</p>
+<p>⚠️ <strong>Faucet gotcha:</strong> the <strong>Alchemy faucet requires a mainnet balance</strong> — a fresh wallet is rejected with <em>"Insufficient balance! You need at least 0.001 ETH on Ethereum Mainnet."</em></p>
+<p><img src="resources/token-wallet/sepolia-faucet-gate.png" alt="Alchemy faucet mainnet-balance gate" /></p>
+<p>Use a <strong>no-gate</strong> faucet instead — <a href="https://sepolia-faucet.pk910.de">pk910 PoW</a> (mine in-browser) or the <a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia">Google Cloud faucet</a>.</p>
+<h3 id="b2-get-a-sepolia-rpc-alchemy">B2. Get a Sepolia RPC (Alchemy)</h3>
+<p>In your Alchemy app, enable <strong>Ethereum Sepolia</strong> and copy the <strong>Endpoint URL</strong> (<code>https://eth-sepolia.g.alchemy.com/v2/&lt;key&gt;</code>). ⚠️ Make sure it says <strong><code>eth-sepolia</code></strong>, not <code>eth-mainnet</code>, and <strong>never commit the key</strong>.</p>
+<p><img src="resources/token-wallet/22-alchemy-app-rpc.png" alt="Alchemy Sepolia RPC (key redacted)" /></p>
+<h3 id="b3-deploy-to-sepolia">B3. Deploy to Sepolia</h3>
+<p>Store the key securely (<code>cast wallet import sepolia-deployer --interactive</code>), then:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SEPOLIA_RPC_URL</span><span class="op">=</span><span class="st">&quot;https://eth-sepolia.g.alchemy.com/v2/&lt;key&gt;&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">forge</span> script script/Deploy.s.sol:Deploy <span class="dt">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--rpc-url</span> sepolia <span class="dt">\</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--account</span> sepolia-deployer <span class="dt">\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--broadcast</span></span></code></pre></div>
+<p><img src="resources/token-wallet/sepolia-deploy-success.png" alt="forge deploy — on-chain execution complete" /></p>
+<p>Paste the three printed addresses into the <strong><code>sepolia</code> block</strong> of <code>config.js</code>.</p>
+<h3 id="b4-publish-the-gui-to-github-pages">B4. Publish the GUI to GitHub Pages</h3>
+<p>Commit the updated <code>config.js</code> (+ <code>abi.js</code>), then on <strong>your fork</strong>: <strong>Settings → Pages → Source = GitHub Actions</strong>, and run the <strong>"Deploy Pages"</strong> workflow. The app publishes to <code>https://&lt;user&gt;.github.io/Enigma-Decentralized-Student-Marketplace/</code>.</p>
+<h3 id="b5-connect--mint-on-the-hosted-site">B5. Connect &amp; mint on the hosted site</h3>
+<p>Open the hosted <strong><code>/modules/token/index.html</code></strong>, choose <strong>"Sepolia (hosted demo)"</strong>, switch MetaMask to <strong>Sepolia</strong>, and <strong>Connect</strong> the owner wallet.</p>
+<p><img src="resources/token-wallet/sepolia-mint-setup.png" alt="Sepolia hosted GUI — mint form + owner account" /></p>
+<p>Fill the mint form → <strong>Mint ENGC</strong> → MetaMask <strong>Confirm</strong> (this spends real Sepolia gas, ~12–15s to confirm).</p>
+<p><img src="resources/token-wallet/sepolia-mint-success.png" alt="Sepolia hosted GUI — mint success" /></p>
+<p>Confirm independently on <strong><a href="https://sepolia.etherscan.io">Sepolia Etherscan</a></strong> (read <code>owner</code>, <code>totalSupply</code>, <code>balanceOf</code>). A non-owner mint reverts with <code>CALL_EXCEPTION</code>, exactly as on Anvil.</p>
+<blockquote>
+<p>✅ <strong>Validated:</strong> the live Sepolia contract mints for the owner, rejects non-owners, and the hosted GUI reads/writes it correctly.</p>
+</blockquote>
+<hr />
+<h2 id="why-anvil-uses-the-local-page-not-the-hosted-url">Why Anvil uses the <em>local</em> page (not the hosted URL)</h2>
+<p>The hosted page is served over <strong>HTTPS</strong>; the frontend reads balances via a direct call to the network's <code>rpcUrl</code>. Sepolia's RPC is <strong>public HTTPS</strong>, so the hosted site reaches it fine. Anvil's RPC is <strong><code>http://127.0.0.1:8545</code></strong> — the browser's <strong>Private Network Access</strong> policy blocks a public HTTPS page from calling a local/loopback address, so balance reads fail. That's why <strong>Anvil → local page</strong>, <strong>Sepolia → hosted page</strong>.</p>
+<hr />
+<p><em>See also: <code>PROCEDURES.md</code> (§A5b Anvil CLI walkthrough, §B3a Alchemy RPC) and <code>CONTRIBUTING.md</code> (PR workflow).</em></p>
+
+</main>
+<footer>Enigma-Decentralized-Student-Marketplace · docs generated from Markdown by <code>scripts/build-docs.py</code></footer>
+</body></html>
