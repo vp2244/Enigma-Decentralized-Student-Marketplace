@@ -16,3 +16,26 @@ Slice & Contract & Tests & Status \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+
+\noindent Table~\ref{tab:gas} reports per-operation gas and confirmation latency. EnigCredit costs are measured with \texttt{forge test --gas-report}; the listing, escrow, and reputation costs are engineering estimates anchored to those measurements, pending implementation by Members~2--4. Confirmation latency is one block: roughly 12\,s on Sepolia and sub-second on a local Anvil chain that mines on demand.
+
+\begin{table}[t]
+\caption{Per-operation gas and latency (EnigCredit measured; Slices 2--4 estimated)}
+\label{tab:gas}
+\centering
+\small
+\begin{tabular}{@{}lrll@{}}
+\toprule
+Operation & Gas & Latency & Notes \\
+\midrule
+\texttt{createListing}   & $\sim$150{,}000 (est.) & $\sim$12\,s & SSTORE-heavy write \\
+\texttt{purchaseItem}    & $\sim$85{,}000 (est.)  & $\sim$12\,s & escrow \texttt{transferFrom} \\
+\texttt{confirmDelivery} & $\sim$60{,}000 (est.)  & $\sim$12\,s & release to seller \\
+\texttt{rateUser}        & $\sim$65{,}000 (est.)  & $\sim$12\,s & rating storage \\
+\midrule
+\texttt{mint} (meas.)     & 38{,}698 & $\sim$12\,s & owner issuance \\
+\texttt{transfer} (meas.) & 51{,}400 & $\sim$12\,s & ERC-20 move \\
+\bottomrule
+\end{tabular}
+\end{table}
