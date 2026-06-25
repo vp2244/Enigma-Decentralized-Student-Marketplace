@@ -1,0 +1,1 @@
+**Owner: Member 3.** Escrow holds ENGC between purchase and delivery: `purchaseItem` pulls price via `transferFrom` (buyer approves first) → *Pending*; `confirmDelivery` pays the seller → *Sold*; `cancelPurchase` refunds. `SafeERC20` + CEI under `ReentrancyGuard`. *[Member 3: refine state machine/events/timeout.]*

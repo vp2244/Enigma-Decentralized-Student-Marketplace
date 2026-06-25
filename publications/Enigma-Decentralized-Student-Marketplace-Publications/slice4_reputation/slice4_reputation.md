@@ -1,0 +1,1 @@
+**Owner: Member 4.** `Reputation` keeps an on-chain rating ledger separate from escrow: `rateUser(listingId, rating)` — verified buyer of a *Sold* listing, 1–5, once (`AlreadyRated`); `getAverageRating(user)`→`(total,count)`. Reads `Marketplace.getListing` to authenticate the rater. *[Member 4: refine events + star UI.]*

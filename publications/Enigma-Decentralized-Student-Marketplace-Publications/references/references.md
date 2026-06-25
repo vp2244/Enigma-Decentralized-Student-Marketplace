@@ -1,0 +1,1 @@
+References are managed in `references/references.bib` (BibTeX, IEEEtran style).

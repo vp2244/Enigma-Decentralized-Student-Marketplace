@@ -1,0 +1,1 @@
+**Owner: Member 1.** `EnigCredit` — ERC-20 (EnigCredit/ENGC/18) on OZ `ERC20`+`Burnable`+`Permit`+`Ownable`. Constructor mints 1,000,000 ENGC to the deployer/owner. `mint(to,amount)` is `onlyOwner` (non-owner reverts); `transfer`/`approve`/`permit` feed the escrow slice. Front-end: connect wallet, show balance, owner mint form.

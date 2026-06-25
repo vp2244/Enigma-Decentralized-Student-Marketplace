@@ -1,0 +1,1 @@
+Foundry evaluation. `EnigCreditTest` passes **7/7** (metadata, initial supply, owner mint, non-owner revert, transfer, permit, burn). Deployed to Anvil and **Sepolia** (`0x3162…F0de5`); the hosted client minted as owner and rejected non-owner mints (`CALL_EXCEPTION`) on both networks. Listings/escrow/reputation suites reported by their owners as completed.

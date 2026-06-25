@@ -1,0 +1,1 @@
+**Owner: Member 2.** `Marketplace` records listings: `createListing` stores `Listing{seller, price(ENGC), metadata, status}`; `getListing(id)`/`totalListings()` expose them; ids are monotonic; invalid metadata/price revert. *[Member 2: refine with exact fields/events/validation.]*
