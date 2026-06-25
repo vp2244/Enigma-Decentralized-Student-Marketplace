@@ -19,6 +19,21 @@ Every section has a Markdown mirror:
 - **Compiled PDF:** builds in CI on every push — download the latest **`enigma-paper-pdf`** artifact from
   the [Build paper workflow](https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/actions/workflows/build-paper.yml). *(Overleaf: upload the folder, set the main document to `main.tex`.)*
 
+### Evaluation: gas and latency
+
+Per-operation cost. **EnigCredit (Slice 1) figures are measured** via `forge test --gas-report`; Slices 2–4 are not yet implemented (`TODO` stubs), so their gas is an **engineering estimate** anchored to the measured costs — replace with a real gas report once each owner implements their function.
+
+| Operation | Gas | Latency | Notes |
+| --- | --- | --- | --- |
+| `createListing` | ~150,000 *(est.)* | ~12 s | one SSTORE-heavy write (struct + strings) |
+| `purchaseItem` | ~85,000 *(est.)* | ~12 s | escrow `transferFrom` |
+| `confirmDelivery` | ~60,000 *(est.)* | ~12 s | release to seller |
+| `rateUser` | ~65,000 *(est.)* | ~12 s | rating storage |
+| `mint` *(Slice 1, measured)* | 38,698 | ~12 s | owner issuance — baseline |
+| `transfer` *(Slice 1, measured)* | 51,400 | ~12 s | ERC-20 value move — baseline |
+
+> Latency ≈ one block confirmation: **Sepolia ~12 s**, **local Anvil < 1 s** (mines on demand). Gas is network-independent.
+
 ### Per-section ownership
 | Section | Owner | Status |
 | --- | --- | --- |

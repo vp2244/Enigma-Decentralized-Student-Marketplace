@@ -21,6 +21,59 @@
 <li><strong>LaTeX source + README:</strong> <a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/tree/publications/publications/Enigma-Decentralized-Student-Marketplace-Publications"><code>publications/</code> folder</a></li>
 <li><strong>Compiled PDF:</strong> builds in CI on every push — download the latest <strong><code>enigma-paper-pdf</code></strong> artifact from the <a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/actions/workflows/build-paper.yml">Build paper workflow</a>. <em>(Overleaf: upload the folder, set the main document to <code>main.tex</code>.)</em></li>
 </ul>
+<h3 id="evaluation-gas-and-latency">Evaluation: gas and latency</h3>
+<p>Per-operation cost. <strong>EnigCredit (Slice 1) figures are measured</strong> via <code>forge test --gas-report</code>; Slices 2–4 are not yet implemented (<code>TODO</code> stubs), so their gas is an <strong>engineering estimate</strong> anchored to the measured costs — replace with a real gas report once each owner implements their function.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Gas</th>
+<th>Latency</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>createListing</code></td>
+<td>~150,000 <em>(est.)</em></td>
+<td>~12 s</td>
+<td>one SSTORE-heavy write (struct + strings)</td>
+</tr>
+<tr>
+<td><code>purchaseItem</code></td>
+<td>~85,000 <em>(est.)</em></td>
+<td>~12 s</td>
+<td>escrow <code>transferFrom</code></td>
+</tr>
+<tr>
+<td><code>confirmDelivery</code></td>
+<td>~60,000 <em>(est.)</em></td>
+<td>~12 s</td>
+<td>release to seller</td>
+</tr>
+<tr>
+<td><code>rateUser</code></td>
+<td>~65,000 <em>(est.)</em></td>
+<td>~12 s</td>
+<td>rating storage</td>
+</tr>
+<tr>
+<td><code>mint</code> <em>(Slice 1, measured)</em></td>
+<td>38,698</td>
+<td>~12 s</td>
+<td>owner issuance — baseline</td>
+</tr>
+<tr>
+<td><code>transfer</code> <em>(Slice 1, measured)</em></td>
+<td>51,400</td>
+<td>~12 s</td>
+<td>ERC-20 value move — baseline</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Latency ≈ one block confirmation: <strong>Sepolia ~12 s</strong>, <strong>local Anvil &lt; 1 s</strong> (mines on demand). Gas is network-independent.</p>
+</blockquote>
 <h3 id="per-section-ownership">Per-section ownership</h3>
 <table>
 <thead>
