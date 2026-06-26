@@ -7,7 +7,6 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 /// @title Marketplace — Slice 2 (Listings) + Slice 3 (Escrow / Trade)  [STUDENT TEMPLATE]
-/// @notice Implement TODO(member2)/TODO(member3). Reputation/ratings are in Reputation.sol (member4).
 contract Marketplace is ReentrancyGuard, Pausable, Ownable {
     using SafeERC20 for IERC20;
     enum Status { Available, Pending, Sold, Cancelled }
@@ -30,20 +29,53 @@ contract Marketplace is ReentrancyGuard, Pausable, Ownable {
     }
     function getListing(uint256 id) external view returns (Listing memory) { return listings[id]; }
     function totalListings() external view returns (uint256) { return nextListingId; }
+
+    // Slice 3 — Escrow / Trade
+
     function purchaseItem(uint256 id) external nonReentrant whenNotPaused {
-        // TODO(member3): checks; Pending; token.safeTransferFrom escrow; emit ItemPurchased.
-        revert("TODO(member3): implement purchaseItem");
+        _escrowPurchase(id);
     }
+
     function purchaseWithPermit(uint256 id, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external nonReentrant whenNotPaused {
-        // TODO(member3): IERC20Permit(address(token)).permit(...); then purchase logic.
-        revert("TODO(member3): implement purchaseWithPermit");
+        Listing storage l = listings[id];
+        IERC20Permit(address(token)).permit(msg.sender, address(this), l.priceInTokens, deadline, v, r, s);
+        _escrowPurchase(id);
     }
+
     function confirmDelivery(uint256 id) external nonReentrant {
-        // TODO(member3): require Pending+buyer; Sold; token.safeTransfer(seller); emit DeliveryConfirmed.
-        revert("TODO(member3): implement confirmDelivery");
+        Listing storage l = listings[id];
+        if (l.status != Status.Pending) revert NotPending();
+        if (msg.sender != l.buyer) revert NotBuyer();
+        uint256 amount = l.priceInTokens;
+        address seller = l.seller;
+        l.status = Status.Sold;
+        token.safeTransfer(seller, amount);
+        emit DeliveryConfirmed(id, seller, amount);
     }
+
     function cancelPurchase(uint256 id) external nonReentrant {
-        // TODO(member3): require Pending+buyer+timeout; reset; token.safeTransfer(buyer); emit PurchaseCancelled.
-        revert("TODO(member3): implement cancelPurchase");
+        Listing storage l = listings[id];
+        if (l.status != Status.Pending) revert NotPending();
+        if (msg.sender != l.buyer) revert NotBuyer();
+        if (block.timestamp < l.purchaseTimestamp + CANCELLATION_TIMEOUT) revert TimeoutNotReached();
+        address refundTo = l.buyer;
+        uint256 amount = l.priceInTokens;
+        l.status = Status.Available;
+        l.buyer = address(0);
+        l.purchaseTimestamp = 0;
+        token.safeTransfer(refundTo, amount);
+        emit PurchaseCancelled(id, refundTo);
+    }
+
+    // shared by purchaseItem + purchaseWithPermit; effects before transfer (CEI)
+    function _escrowPurchase(uint256 id) internal {
+        Listing storage l = listings[id];
+        if (l.status != Status.Available) revert NotAvailable();
+        if (msg.sender == l.seller) revert SelfPurchase();
+        l.buyer = msg.sender;
+        l.status = Status.Pending;
+        l.purchaseTimestamp = block.timestamp;
+        token.safeTransferFrom(msg.sender, address(this), l.priceInTokens);
+        emit ItemPurchased(id, msg.sender);
     }
 }
