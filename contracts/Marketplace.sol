@@ -19,13 +19,31 @@ contract Marketplace is ReentrancyGuard, Pausable, Ownable {
     event ItemPurchased(uint256 indexed id, address indexed buyer);
     event DeliveryConfirmed(uint256 indexed id, address indexed seller, uint256 amount);
     event PurchaseCancelled(uint256 indexed id, address indexed buyer);
+    event ListingCancelled(uint256 indexed id, address indexed seller);
     error EmptyTitle(); error BadPrice(); error NotAvailable(); error SelfPurchase(); error NotPending(); error NotBuyer(); error TimeoutNotReached();
+    error NotSeller();
     constructor(address token_) Ownable(msg.sender) { token = IERC20(token_); }
     function pause() external onlyOwner { _pause(); }
     function unpause() external onlyOwner { _unpause(); }
     function createListing(string calldata title, string calldata category, string calldata condition, uint256 priceInTokens, string calldata imageUrl) external whenNotPaused returns (uint256 id) {
-        // TODO(member2): validate (EmptyTitle/BadPrice); id=nextListingId++; store Available Listing; emit ListingCreated.
-        revert("TODO(member2): implement createListing");
+        if (bytes(title).length == 0) revert EmptyTitle();
+        if (priceInTokens == 0) revert BadPrice();
+
+        id = nextListingId++;
+        listings[id] = Listing({
+            id: id,
+            seller: msg.sender,
+            buyer: address(0),
+            title: title,
+            category: category,
+            condition: condition,
+            priceInTokens: priceInTokens,
+            imageUrl: imageUrl,
+            status: Status.Available,
+            purchaseTimestamp: 0
+        });
+
+        emit ListingCreated(id, msg.sender, title, priceInTokens);
     }
     function getListing(uint256 id) external view returns (Listing memory) { return listings[id]; }
     function totalListings() external view returns (uint256) { return nextListingId; }
@@ -77,5 +95,16 @@ contract Marketplace is ReentrancyGuard, Pausable, Ownable {
         l.purchaseTimestamp = block.timestamp;
         token.safeTransferFrom(msg.sender, address(this), l.priceInTokens);
         emit ItemPurchased(id, msg.sender);
+    }
+
+    /// @notice Allow the seller to cancel an available listing
+    function cancelListing(uint256 id) external nonReentrant {
+        Listing storage l = listings[id];
+        if (l.seller != msg.sender) revert NotSeller();
+        if (l.status != Status.Available) revert NotAvailable();
+
+        l.status = Status.Cancelled;
+
+        emit ListingCancelled(id, msg.sender);
     }
 }
