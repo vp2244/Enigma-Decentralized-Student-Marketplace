@@ -1,0 +1,1 @@
+Three Solidity 0.8.20 contracts on OpenZeppelin v5.1.0 — `EnigCredit` (ERC-20), `Marketplace` (listings+escrow), `Reputation` — with an ethers.js front end targeting Anvil (31337) or Sepolia (11155111). Threats: unauthorized mint (→ `Ownable`), payment theft/reentrancy (→ escrow + CEI + `ReentrancyGuard` + `SafeERC20`), reputation forgery (→ ratings bound to completed sales).

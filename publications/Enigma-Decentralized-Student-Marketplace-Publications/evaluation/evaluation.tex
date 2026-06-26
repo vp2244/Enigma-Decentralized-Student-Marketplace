@@ -1,0 +1,41 @@
+We evaluate Enigma with the Foundry toolchain~\cite{foundry}. The token slice's unit suite \texttt{EnigCreditTest} passes 7 of 7 cases, covering metadata, initial supply, owner mint, non-owner-mint revert, transfer, permit, and burn. The contracts were deployed both to a local Anvil chain and to the public Sepolia testnet (EnigCredit at \texttt{0x3162{\ldots}F0de5}); through the hosted web client the owner successfully minted ENGC and non-owner mints were correctly rejected with \texttt{CALL\_EXCEPTION} on both networks, confirming the access-control property end-to-end. Table~\ref{tab:status} summarizes per-slice status; the listings, escrow, and reputation suites are reported by their owners as those slices are completed.
+
+\begin{table}[t]
+\caption{Per-slice contract and test status}
+\label{tab:status}
+\centering
+\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+Slice & Contract & Tests & Status \\
+\midrule
+1 Token + Wallet  & EnigCredit  & EnigCreditTest (7/7) & passing \\
+2 Listings        & Marketplace & ListingsTest         & in progress \\
+3 Escrow + Ratings& Marketplace & EscrowTest           & in progress \\
+4 Reputation      & Reputation  & ReputationTest       & in progress \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\noindent Table~\ref{tab:gas} reports per-operation gas and confirmation latency. EnigCredit costs are measured with \texttt{forge test --gas-report}; the listing, escrow, and reputation costs are engineering estimates anchored to those measurements, pending implementation by Members~2--4. Confirmation latency is one block: roughly 12\,s on Sepolia and sub-second on a local Anvil chain that mines on demand.
+
+\begin{table}[t]
+\caption{Per-operation gas and latency (EnigCredit measured; Slices 2--4 estimated)}
+\label{tab:gas}
+\centering
+\small
+\begin{tabular}{@{}lrll@{}}
+\toprule
+Operation & Gas & Latency & Notes \\
+\midrule
+\texttt{createListing}   & $\sim$150{,}000 (est.) & $\sim$12\,s & SSTORE-heavy write \\
+\texttt{purchaseItem}    & $\sim$85{,}000 (est.)  & $\sim$12\,s & escrow \texttt{transferFrom} \\
+\texttt{confirmDelivery} & $\sim$60{,}000 (est.)  & $\sim$12\,s & release to seller \\
+\texttt{rateUser}        & $\sim$65{,}000 (est.)  & $\sim$12\,s & rating storage \\
+\midrule
+\texttt{mint} (meas.)     & 38{,}698 & $\sim$12\,s & owner issuance \\
+\texttt{transfer} (meas.) & 51{,}400 & $\sim$12\,s & ERC-20 move \\
+\bottomrule
+\end{tabular}
+\end{table}

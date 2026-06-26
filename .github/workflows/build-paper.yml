@@ -1,0 +1,23 @@
+name: Build paper
+on:
+  push:
+    branches: [ publications ]
+    paths: [ 'publications/**' ]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  latex:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile main.tex
+        uses: xu-cheng/latex-action@v3
+        with:
+          working_directory: publications/Enigma-Decentralized-Student-Marketplace-Publications
+          root_file: main.tex
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: enigma-paper-pdf
+          path: publications/Enigma-Decentralized-Student-Marketplace-Publications/main.pdf
