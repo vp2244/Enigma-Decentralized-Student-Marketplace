@@ -25,8 +25,24 @@ contract Marketplace is ReentrancyGuard, Pausable, Ownable {
     function pause() external onlyOwner { _pause(); }
     function unpause() external onlyOwner { _unpause(); }
     function createListing(string calldata title, string calldata category, string calldata condition, uint256 priceInTokens, string calldata imageUrl) external whenNotPaused returns (uint256 id) {
-        // TODO(member2): validate (EmptyTitle/BadPrice); id=nextListingId++; store Available Listing; emit ListingCreated.
-        revert("TODO(member2): implement createListing");
+        if (bytes(title).length == 0) revert EmptyTitle();
+        if (priceInTokens == 0) revert BadPrice();
+
+        id = nextListingId++;
+        listings[id] = Listing({
+            id: id,
+            seller: msg.sender,
+            buyer: address(0),
+            title: title,
+            category: category,
+            condition: condition,
+            priceInTokens: priceInTokens,
+            imageUrl: imageUrl,
+            status: Status.Available,
+            purchaseTimestamp: 0
+        });
+
+        emit ListingCreated(id, msg.sender, title, priceInTokens);
     }
     function getListing(uint256 id) external view returns (Listing memory) { return listings[id]; }
     function totalListings() external view returns (uint256) { return nextListingId; }
