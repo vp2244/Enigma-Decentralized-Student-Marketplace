@@ -1,19 +1,95 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Token + Wallet · Marketplace</title>
-<link rel="stylesheet" href="../../shared/layout.css"/></head>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Token & Wallet · Enigma</title>
+  <link rel="stylesheet" href="../../shared/layout.css"/>
+</head>
 <body>
-<header class="enigma-header"><h1>1 · Token + Wallet <span class="owner">member1</span></h1>
-  <p class="scenario">Connect your wallet (your identity) and see your EnigCredit balance. Faculty/owner can mint demo credits.</p>
-  <label class="netrow">Network: <select id="net" class="net"></select></label></header>
-<main><div class="card">
-  <button id="connect">Connect wallet</button>
-  <p id="who" class="muted"></p>
-  <p id="bal" class="muted"></p>
-  <h3>Mint EnigCredit (owner only)</h3>
-  <input id="to" placeholder="0x… recipient"/>
-  <input id="amt" placeholder="amount (e.g. 500)"/>
-  <button id="mint">Mint ENGC</button>
-  <pre id="out" class="out"></pre>
-</div></main>
-<script type="module" src="token.js"></script></body></html>
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:22px;height:22px">
+          <polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
+        </svg>
+        Enigma Market
+      </div>
+      <div class="tagline">Decentralized · Student Goods</div>
+    </div>
+    <div class="sidebar-wallet" id="wallet-section"></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Modules</div>
+      <a href="index.html" class="active"><span class="nav-icon">💳</span><span>Token & Wallet</span></a>
+      <a href="../listings/index.html"><span class="nav-icon">🏷️</span><span>Browse Listings</span></a>
+      <a href="../market/index.html"><span class="nav-icon">🤝</span><span>Escrow / Trade</span></a>
+      <a href="../reputation/index.html"><span class="nav-icon">⭐</span><span>Reputation</span></a>
+      <div class="nav-section-label">Docs</div>
+      <a href="../../docs/index.html"><span class="nav-icon">📖</span><span>Documentation</span></a>
+      <a href="../../tracker/index.html"><span class="nav-icon">📊</span><span>Tracker</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="net-row"><span>Net:</span><select id="net" class="net"></select></div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">
+        <h1>Token & Wallet</h1>
+        <p>Manage your EnigCredit (ENGC) balance and wallet details.</p>
+      </div>
+      <div class="topbar-actions">
+        <div id="balance-display"></div>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Wallet summary card — shown once connected via sidebar -->
+      <div id="connected-info" class="card" style="display:none;">
+        <div class="card-title">💳 Wallet Summary</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;">
+          <div style="background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px;">
+            <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;">Wallet Address</div>
+            <div id="addr-display" style="font-family:monospace;font-size:.85rem;word-break:break-all;color:var(--ink);"></div>
+          </div>
+          <div style="background:var(--accent-glow);border:1px solid var(--accent-dim);border-radius:var(--radius-sm);padding:14px;">
+            <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:6px;">ENGC Balance</div>
+            <div id="bal-display" style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--accent);">—</div>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:12px;">
+          <button id="refresh-bal" class="secondary">↻ Refresh Balance</button>
+        </div>
+      </div>
+
+      <!-- Mint card (owner only) -->
+      <div class="card">
+        <div class="card-title">🪙 Mint EnigCredit <span style="font-size:.72rem;font-weight:500;color:var(--muted);margin-left:6px;">(Owner / Faculty only)</span></div>
+        <p style="font-size:.84rem;color:var(--muted);margin-bottom:16px;">Issue demo credits to any address for testing the marketplace.</p>
+        <div class="form-grid">
+          <div class="field-group full">
+            <label class="field-label">Recipient Address</label>
+            <input id="to" placeholder="0x… (leave blank to mint to yourself)"/>
+          </div>
+          <div class="field-group full">
+            <label class="field-label">Amount (ENGC)</label>
+            <input id="amt" placeholder="e.g. 500" type="number" min="1"/>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button id="mint">Mint ENGC</button>
+        </div>
+        <div id="out" class="status-box"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module" src="token.js"></script>
+</body>
+</html>

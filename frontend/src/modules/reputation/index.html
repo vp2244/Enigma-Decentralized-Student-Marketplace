@@ -1,20 +1,109 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Reputation / Ratings · Marketplace</title>
-<link rel="stylesheet" href="../../shared/layout.css"/></head>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Reputation · Enigma</title>
+  <link rel="stylesheet" href="../../shared/layout.css"/>
+</head>
 <body>
-<header class="enigma-header"><h1>4 · Reputation / Ratings <span class="owner">member4</span></h1>
-  <p class="scenario">After a completed (Sold) trade, the buyer rates the seller 1–5. Averages are read on-chain.</p>
-  <label class="netrow">Network: <select id="net" class="net"></select></label></header>
-<main><div class="card">
-  <button id="connect">Connect wallet (buyer)</button>
-  <p id="who" class="muted"></p>
-  <input id="id" placeholder="listing id of a completed sale"/>
-  <input id="stars" placeholder="rating 1–5"/>
-  <button id="rate">Submit rating</button>
-  <h3>Seller reputation</h3>
-  <input id="seller" placeholder="0x… seller (or leave blank to use listing seller)"/>
-  <button id="avg" class="secondary">Show average</button>
-  <pre id="out" class="out"></pre>
-</div></main>
-<script type="module" src="reputation.js"></script></body></html>
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:22px;height:22px">
+          <polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
+        </svg>
+        Enigma Market
+      </div>
+      <div class="tagline">Decentralized · Student Goods</div>
+    </div>
+    <div class="sidebar-wallet" id="wallet-section"></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Modules</div>
+      <a href="../token/index.html"><span class="nav-icon">💳</span><span>Token & Wallet</span></a>
+      <a href="../listings/index.html"><span class="nav-icon">🏷️</span><span>Browse Listings</span></a>
+      <a href="../market/index.html"><span class="nav-icon">🤝</span><span>Escrow / Trade</span></a>
+      <a href="index.html" class="active"><span class="nav-icon">⭐</span><span>Reputation</span></a>
+      <div class="nav-section-label">Docs</div>
+      <a href="../../docs/index.html"><span class="nav-icon">📖</span><span>Documentation</span></a>
+      <a href="../../tracker/index.html"><span class="nav-icon">📊</span><span>Tracker</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="net-row"><span>Net:</span><select id="net" class="net"></select></div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">
+        <h1>Reputation & Ratings</h1>
+        <p>Rate sellers after a completed trade. Averages stored on-chain.</p>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+        <!-- Rate seller -->
+        <div class="card">
+          <div class="card-title">⭐ Rate a Seller</div>
+          <p style="font-size:.84rem;color:var(--muted);margin-bottom:16px;">Only the buyer of a completed (Sold) trade can submit a rating.</p>
+          <div class="form-grid">
+            <div class="field-group full">
+              <label class="field-label">Listing ID (completed sale)</label>
+              <input id="id" placeholder="e.g. 0" type="number" min="0"/>
+            </div>
+            <div class="field-group full">
+              <label class="field-label">Your Rating</label>
+              <div class="star-input" id="star-input">
+                <span data-val="1">★</span>
+                <span data-val="2">★</span>
+                <span data-val="3">★</span>
+                <span data-val="4">★</span>
+                <span data-val="5">★</span>
+              </div>
+              <input id="stars" type="hidden" value="0"/>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button id="rate">Submit Rating</button>
+          </div>
+          <div id="rate-out" class="status-box"></div>
+        </div>
+
+        <!-- Lookup reputation -->
+        <div class="card">
+          <div class="card-title">🔍 Check Seller Reputation</div>
+          <p style="font-size:.84rem;color:var(--muted);margin-bottom:16px;">Look up a seller by address or by listing ID.</p>
+          <div class="form-grid">
+            <div class="field-group full">
+              <label class="field-label">Seller Address <span style="font-weight:400;color:var(--subtle)">(or leave blank)</span></label>
+              <input id="seller" placeholder="0x…"/>
+            </div>
+            <div class="field-group full">
+              <label class="field-label">Listing ID <span style="font-weight:400;color:var(--subtle)">(used if address blank)</span></label>
+              <input id="lookup-id" placeholder="e.g. 0" type="number" min="0"/>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button id="avg" class="ghost">Look Up Reputation</button>
+          </div>
+          <div id="rep-result" style="display:none;" class="rep-score">
+            <div class="big-num" id="rep-score-num">—</div>
+            <div class="stars-display" id="rep-stars"></div>
+            <div class="count" id="rep-count"></div>
+          </div>
+          <div id="avg-out" class="status-box"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module" src="reputation.js"></script>
+</body>
+</html>

@@ -1,37 +1,146 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Listings · Marketplace</title>
-<link rel="stylesheet" href="../../shared/layout.css"/></head>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Browse Listings · Enigma</title>
+  <link rel="stylesheet" href="../../shared/layout.css"/>
+</head>
 <body>
-<header class="enigma-header"><h1>2 · Listings <span class="owner">member2</span></h1>
-  <p class="scenario">Post an item for sale, and browse what's available.</p>
-  <label class="netrow">Network: <select id="net" class="net"></select></label></header>
-<main>
-  <div class="card">
-    <button id="connect">Connect wallet (seller)</button>
-    <p id="who" class="muted"></p>
-    <h3>Create a listing</h3>
-    <input id="title" placeholder="title (e.g. Calculus: Early Transcendentals)"/>
-    <input id="category" placeholder="category (Textbook/Notes/Electronics/Supplies/Other)"/>
-    <input id="condition" placeholder="condition (New/Good/Fair)"/>
-    <input id="price" placeholder="price in ENGC (e.g. 50)"/>
-    <input id="imageUrl" placeholder="image URL (optional)"/>
-    <button id="create">Post listing</button>
-    <pre id="out" class="out"></pre>
-  </div>
-  <div class="card">
-    <h3>Available listings <button id="refresh" class="secondary">Refresh</button></h3>
-    <div class="filter-section">
-      <label for="statusFilter">Filter by Status:</label>
-      <select id="statusFilter">
-        <option value="">All</option>
-        <option value="Available">Available</option>
-        <option value="Pending">Pending</option>
-        <option value="Sold">Sold</option>
-        <option value="Cancelled">Cancelled</option>
-      </select>
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:22px;height:22px">
+          <polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
+        </svg>
+        Enigma Market
+      </div>
+      <div class="tagline">Decentralized · Student Goods</div>
     </div>
-    <div id="list"></div>
+    <div class="sidebar-wallet" id="wallet-section"></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Modules</div>
+      <a href="../token/index.html"><span class="nav-icon">💳</span><span>Token & Wallet</span></a>
+      <a href="index.html" class="active"><span class="nav-icon">🏷️</span><span>Browse Listings</span></a>
+      <a href="../market/index.html"><span class="nav-icon">🤝</span><span>Escrow / Trade</span></a>
+      <a href="../reputation/index.html"><span class="nav-icon">⭐</span><span>Reputation</span></a>
+      <div class="nav-section-label">Docs</div>
+      <a href="../../docs/index.html"><span class="nav-icon">📖</span><span>Documentation</span></a>
+      <a href="../../tracker/index.html"><span class="nav-icon">📊</span><span>Tracker</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="net-row"><span>Net:</span><select id="net" class="net"></select></div>
+    </div>
   </div>
-</main>
-<script type="module" src="listings.js"></script></body></html>
+
+  <!-- Main -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">
+        <h1>Browse Listings</h1>
+        <p>Find student textbooks, electronics, notes, and more.</p>
+      </div>
+      <div class="topbar-actions">
+        <button id="show-post-form" class="ghost">+ Post an Item</button>
+        <button id="refresh" class="secondary">↻ Refresh</button>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Post listing form (collapsible) -->
+      <div class="card" id="post-form-card" style="display:none;">
+        <div class="card-title" style="justify-content:space-between;">
+          <span>🏷️ Post a New Listing</span>
+          <button id="hide-post-form" class="secondary" style="padding:4px 10px;font-size:.8rem;">✕ Close</button>
+        </div>
+        <p style="font-size:.84rem;color:var(--muted);margin-bottom:16px;">Sell your study materials to other students. Price in ENGC tokens.</p>
+        <div class="form-grid">
+          <div class="field-group full">
+            <label class="field-label">Item Title</label>
+            <input id="title" placeholder="e.g. Calculus: Early Transcendentals 8th Ed."/>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Category</label>
+            <select id="category">
+              <option value="">Select category…</option>
+              <option>Textbook</option>
+              <option>Notes</option>
+              <option>Electronics</option>
+              <option>Supplies</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Condition</label>
+            <select id="condition">
+              <option value="">Select condition…</option>
+              <option>New</option>
+              <option>Good</option>
+              <option>Fair</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Price (ENGC)</label>
+            <input id="price" placeholder="e.g. 50" type="number" min="1"/>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Image URL <span style="font-weight:400;color:var(--subtle)">(optional)</span></label>
+            <input id="imageUrl" placeholder="https://…"/>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button id="create">Post Listing</button>
+          <button id="hide-post-form2" class="secondary">Cancel</button>
+        </div>
+        <div id="post-out" class="status-box"></div>
+      </div>
+
+      <!-- ── My Listings ──────────────────────────────────────────────── -->
+      <div id="my-listings-section" style="display:none;">
+        <div class="section-header">
+          <div class="section-header-left">
+            <h2 class="section-title">My Listings</h2>
+            <span id="my-listing-count" class="section-count"></span>
+          </div>
+        </div>
+        <div id="my-list" class="listings-grid"></div>
+      </div>
+
+      <!-- ── All Listings ─────────────────────────────────────────────── -->
+      <div class="section-header">
+        <div class="section-header-left">
+          <h2 class="section-title">All Listings</h2>
+          <span id="listing-count" class="section-count"></span>
+        </div>
+        <div class="filter-bar">
+          <select id="statusFilter">
+            <option value="">All Statuses</option>
+            <option value="Available">Available</option>
+            <option value="Pending">Pending</option>
+            <option value="Sold">Sold</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+          <select id="categoryFilter">
+            <option value="">All Categories</option>
+            <option>Textbook</option>
+            <option>Notes</option>
+            <option>Electronics</option>
+            <option>Supplies</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="list" class="listings-grid"></div>
+      <div id="list-status" class="status-box" style="display:none;"></div>
+
+    </div>
+  </div>
+</div>
+<script type="module" src="listings.js"></script>
+</body>
+</html>
