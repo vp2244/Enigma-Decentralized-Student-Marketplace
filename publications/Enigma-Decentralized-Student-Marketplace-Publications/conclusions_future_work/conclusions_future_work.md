@@ -1,0 +1,1 @@
+Enigma partitions a full token–escrow–reputation marketplace into four independently testable slices that compose into one system. Token slice is validated on Anvil + Sepolia. Future work: escrow dispute timeouts, batched reputation reads + star-rating UI, listing search/indexing, verified Sepolia deployment.

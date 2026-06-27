@@ -1,0 +1,17 @@
+name: Build paper
+on:
+  push: { branches: [ main, develop ] }
+  workflow_dispatch:
+permissions: { contents: write }
+jobs:
+  latex:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile main.tex
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: main.tex
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with: { name: enigma-paper, path: main.pdf }

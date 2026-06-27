@@ -10,6 +10,7 @@ contract ListingsTest is Test {
     EnigCredit token;
     Marketplace market;
     address seller = address(0x5E11E1);
+    address attacker = address(0xDEAD);
 
     function setUp() public {
         token = new EnigCredit();
@@ -41,5 +42,39 @@ contract ListingsTest is Test {
         market.createListing("A", "Other", "New", 1 ether, "");
         market.createListing("B", "Other", "New", 2 ether, "");
         assertEq(market.totalListings(), 2);
+    }
+
+    function test_SellerCanCancelAvailable() public {
+        vm.prank(seller);
+        uint256 id = market.createListing("Calc", "Textbook", "Good", 10 ether, "");
+
+        vm.prank(seller);
+        market.cancelListing(id);
+
+        Marketplace.Listing memory l = market.getListing(id);
+        assertEq(uint256(l.status), uint256(Marketplace.Status.Cancelled));
+    }
+
+    function test_RevertWhen_NotSeller() public {
+        vm.prank(seller);
+        uint256 id = market.createListing("Calc", "Textbook", "Good", 10 ether, "");
+
+        vm.prank(attacker);
+        vm.expectRevert(Marketplace.NotSeller.selector);
+        market.cancelListing(id);
+    }
+
+    function test_RevertWhen_NotAvailable() public {
+        vm.prank(seller);
+        uint256 id = market.createListing("Calc", "Textbook", "Good", 10 ether, "");
+
+        // cancel once
+        vm.prank(seller);
+        market.cancelListing(id);
+
+        // second cancel should revert with NotAvailable
+        vm.prank(seller);
+        vm.expectRevert(Marketplace.NotAvailable.selector);
+        market.cancelListing(id);
     }
 }

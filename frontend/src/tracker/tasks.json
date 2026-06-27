@@ -45,6 +45,18 @@
       "functions": "purchaseItem, confirmDelivery, cancelPurchase, rateUser",
       "branch": "feature/member3-escrow",
       "deliverables": { "video": "", "slides": "", "doc": "docs/escrow-module.md" }
+    },
+    {
+      "id": 4,
+      "name": "Member 4",
+      "handle": "@member4",
+      "slice": "Reputation / Ratings",
+      "contract": "Reputation.sol",
+      "testContract": "ReputationTest",
+      "module": "reputation",
+      "functions": "rateUser, getAverageRating",
+      "branch": "feature/member4-reputation",
+      "deliverables": { "video": "", "slides": "", "doc": "docs/reputation-module.md" }
     }
   ],
   "tasks": [
@@ -76,6 +88,16 @@
     { "id": "m3-deploy",   "member": 3, "phase": "deploy",   "due": "2026-06-20", "done": false, "title": "Deploy Marketplace (escrow)","desc": "Deploy full Marketplace.sol with escrow active; run end-to-end purchase flow." },
     { "id": "m3-test",     "member": 3, "phase": "test",     "due": "2026-06-22", "done": false, "title": "Test EscrowTest",            "desc": "Write and run EscrowTest; cover purchase, delivery, cancellation, and rating scenarios." },
     { "id": "m3-document", "member": 3, "phase": "document", "due": "2026-06-25", "done": false, "title": "Document escrow module",    "desc": "Complete docs/escrow-module.md with state-machine diagram and function reference." },
-    { "id": "m3-present",  "member": 3, "phase": "present",  "due": "2026-06-30", "done": false, "title": "Present Escrow + Ratings",  "desc": "Record a 3-minute demo of the full escrow flow and prepare slides." }
+    { "id": "m3-present",  "member": 3, "phase": "present",  "due": "2026-06-30", "done": false, "title": "Present Escrow + Ratings",  "desc": "Record a 3-minute demo of the full escrow flow and prepare slides." },
+
+    { "id": "m4-plan",     "member": 4, "phase": "plan",     "due": "2026-06-11", "done": false, "title": "Plan Reputation slice",      "desc": "Define rating rules (1–5, once per completed sale) and how Reputation reads Marketplace state." },
+    { "id": "m4-design",   "member": 4, "phase": "design",   "due": "2026-06-13", "done": false, "title": "Design Reputation.sol",      "desc": "Design the rating ledger, AlreadyRated guard, and getAverageRating(total,count) interface." },
+    { "id": "m4-code",     "member": 4, "phase": "code",     "due": "2026-06-16", "done": false, "title": "Implement rateUser",         "desc": "Implement rateUser(listingId, rating) reading Marketplace.getListing to verify the completed sale." },
+    { "id": "m4-compile",  "member": 4, "phase": "compile",  "due": "2026-06-17", "done": false, "title": "Compile reputation code",    "desc": "Run forge build; resolve compiler errors and warnings in the reputation slice." },
+    { "id": "m4-revise",   "member": 4, "phase": "revise",   "due": "2026-06-18", "done": false, "title": "Revise reputation logic",    "desc": "Apply review feedback; tighten rating bounds, buyer-only and Status.Sold checks." },
+    { "id": "m4-deploy",   "member": 4, "phase": "deploy",   "due": "2026-06-20", "done": false, "title": "Deploy Reputation to Anvil", "desc": "Deploy Reputation.sol to Anvil wired to Marketplace; verify rateUser works after a sale." },
+    { "id": "m4-test",     "member": 4, "phase": "test",     "due": "2026-06-22", "done": false, "title": "Test ReputationTest",        "desc": "Write and run ReputationTest; cover rate-after-sold, double-rate, non-buyer, bad-rating, and unsold reverts." },
+    { "id": "m4-document", "member": 4, "phase": "document", "due": "2026-06-25", "done": false, "title": "Document reputation module", "desc": "Complete docs/reputation-module.md with function reference and rating rules." },
+    { "id": "m4-present",  "member": 4, "phase": "present",  "due": "2026-06-30", "done": false, "title": "Present Reputation / Ratings", "desc": "Record a 3-minute demo of the rating flow and prepare slides." }
   ]
 }

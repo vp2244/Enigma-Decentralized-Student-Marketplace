@@ -12,6 +12,7 @@ main { padding:24px; max-width:760px; }
 .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; }
 h3 { margin-top:20px; }
 input { width:100%; padding:10px; margin:6px 0; background:#0d1117; border:1px solid var(--line); border-radius:8px; color:var(--ink); }
+select { padding:10px; margin:6px 0; background:#0d1117; border:1px solid var(--line); border-radius:8px; color:var(--ink); }
 button { padding:10px 14px; margin:6px 6px 6px 0; border:0; border-radius:8px; background:var(--accent); color:#03130a; font-weight:600; cursor:pointer; }
 button.secondary { background:#21262d; color:var(--ink); border:1px solid var(--line); }
 .muted { color:var(--muted); font-size:.85rem; }
@@ -20,3 +21,10 @@ footer { padding:16px 24px; color:var(--muted); border-top:1px solid var(--line)
 .netrow { display:inline-block; margin-top:10px; color:var(--muted); font-size:.85rem; }
 .net { width:auto; display:inline-block; margin-left:6px; padding:6px 8px; }
 .owner { font-size:.7rem; background:var(--accent); color:#03130a; border-radius:6px; padding:2px 8px; vertical-align:middle; margin-left:8px; }
+.filter-section { margin:16px 0; padding:12px; background:#0d1117; border:1px solid var(--line); border-radius:8px; }
+.filter-section label { margin-right:10px; color:var(--muted); }
+.filter-section select { display:inline-block; width:auto; margin:0; }
+.listing { background:#0d1117; border:1px solid var(--line); border-radius:8px; padding:12px; margin-bottom:12px; }
+.listing button { padding:8px 12px; font-size:.9rem; margin-right:8px; margin-top:8px; }
+.listing button.buy-now { background:var(--accent); color:#03130a; }
+.listing button.remove-listing { background:#da3633; color:var(--ink); }

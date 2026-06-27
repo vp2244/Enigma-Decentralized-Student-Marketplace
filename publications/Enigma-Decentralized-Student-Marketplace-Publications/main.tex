@@ -1,0 +1,68 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage[utf8]{inputenc}
+\usepackage{cite}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\textfloatsep}{8pt}
+\setlength{\floatsep}{6pt}
+\setlength{\intextsep}{6pt}
+
+\begin{document}
+
+\title{Enigma: A Decentralized Student Marketplace with Token Credits, On-Chain Escrow, and Reputation}
+
+\author{
+  \IEEEauthorblockN{Ranga Sam}
+  \IEEEauthorblockA{Tandon School of Engineering, New York University\\Email: rs10130@nyu.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+\input{abstract/abstract}
+\end{abstract}
+
+\begin{IEEEkeywords}
+blockchain, smart contracts, ERC-20, escrow, reputation, Ethereum, marketplace
+\end{IEEEkeywords}
+
+\section{Introduction}
+\label{sec:intro}
+\input{introduction/introduction}
+
+\section{System Architecture and Threat Model}
+\label{sec:arch}
+\input{architecture/architecture}
+
+\section{Slice 1: Token and Wallet}
+\label{sec:slice1}
+\input{slice1_token/slice1_token}
+
+\section{Slice 2: Listings}
+\label{sec:slice2}
+\input{slice2_listings/slice2_listings}
+
+\section{Slice 3: Escrow and Ratings}
+\label{sec:slice3}
+\input{slice3_escrow/slice3_escrow}
+
+\section{Slice 4: Reputation}
+\label{sec:slice4}
+\input{slice4_reputation/slice4_reputation}
+
+\section{Evaluation}
+\label{sec:eval}
+\input{evaluation/evaluation}
+
+\section{Conclusions and Future Work}
+\label{sec:concl}
+\input{conclusions_future_work/conclusions_future_work}
+
+\input{references/references}
+
+\end{document}

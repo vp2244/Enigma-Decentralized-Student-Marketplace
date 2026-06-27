@@ -1,0 +1,1 @@
+Online student marketplaces depend on a trusted intermediary to custody funds and settle disputes. Enigma replaces that intermediary with public smart contracts so custody, settlement, and reputation are auditable. The system is built as **four vertical slices** — Token+Wallet, Listings, Escrow+Ratings, Reputation — each owned by one member.

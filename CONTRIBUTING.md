@@ -28,15 +28,17 @@ main          ← final, graded state (instructor merges from develop at submiss
 ### 1. Clone the repo (first time only)
 
 ```bash
-git clone git@github.com:enigma-group-project/<Repo-Name>.git
+git clone --recursive git@github.com:enigma-group-project/<Repo-Name>.git
 cd <Repo-Name>
-git checkout develop          # start from develop, not main
-forge install foundry-rs/forge-std
-forge build                   # must be green before you touch anything
+git checkout develop                       # start from develop, not main
+git submodule update --init --recursive    # pulls pinned deps per foundry.lock (OZ v5.1.0, forge-std)
+forge build                                 # must be green before you touch anything
 ```
 
-> For `Enigma-Decentralized-Student-Marketplace` also run:
-> `forge install OpenZeppelin/openzeppelin-contracts`
+> Dependencies are pinned as git submodules via `foundry.lock` — `--recursive` (or the
+> `git submodule update` line) restores OZ **v5.1.0** and forge-std automatically.
+> If you cloned without `--recursive` and see `Source "@openzeppelin/contracts/…" not found`,
+> run: `forge install` (no args — it syncs to `foundry.lock`).
 
 ### 2. Create your feature branch
 

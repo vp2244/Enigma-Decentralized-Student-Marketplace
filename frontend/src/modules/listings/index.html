@@ -21,6 +21,16 @@
   </div>
   <div class="card">
     <h3>Available listings <button id="refresh" class="secondary">Refresh</button></h3>
+    <div class="filter-section">
+      <label for="statusFilter">Filter by Status:</label>
+      <select id="statusFilter">
+        <option value="">All</option>
+        <option value="Available">Available</option>
+        <option value="Pending">Pending</option>
+        <option value="Sold">Sold</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
     <div id="list"></div>
   </div>
 </main>

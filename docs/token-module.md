@@ -11,3 +11,8 @@ metadata · initial supply · owner mint · non-owner revert · transfer.
 
 ## TODO checklist
 - [ ] balance auto-refresh on account/chain change · [ ] "Switch to Sepolia" helper.
+
+## Walkthrough
+
+📸 Validate mint/owner/balance on **both networks** (Local Anvil + Hosted Sepolia), step by step with
+screenshots: [`network-tests.md`](network-tests.md). CLI reference: [`PROCEDURES.md`](PROCEDURES.md).

@@ -17,8 +17,12 @@ contract EnigCredit is ERC20, ERC20Burnable, ERC20Permit, Ownable {
     {
         _mint(msg.sender, 1_000_000 * 10 ** decimals());
     }
+    /// @notice Mint credits to a student walllet. Owner(faculty/deployer) only.
+    /// @param to The address of the student wallet to receive the credits.
+    /// @param amount The number of credits to mint.
     function mint(address to, uint256 amount) external onlyOwner {
-        // TODO(member1): _mint(to, amount);
-        revert("TODO(member1): implement mint");
+        _mint(to, amount);
     }
+    // burn(uint256) / burnFrom(address, uint356) inherrited from ERC20Burnable._allowances
+    //permit(...) nonces / DOMAIN_SEPARATOR inherited from ERC20Permit (ERC+2612)
 }

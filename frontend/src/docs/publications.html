@@ -1,0 +1,115 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publications · Enigma Docs</title>
+<link rel="stylesheet" href="docs.css"></head>
+<body>
+<header class="topbar"><a class="brand" href="../index.html">⟵ Enigma Demo</a><nav><a href="index.html">Docs Home</a><a href="network-tests.html">Network Tests</a><a href="contributing.html">Workflow</a><a href="procedures.html">Procedures</a><a href="publications.html">Publications</a><a href="../tracker/index.html">Tracker</a></nav></header>
+<main class="doc">
+<h1 id="page_facing_up-publications">📄 Publications</h1>
+<h2 id="enigma-a-decentralized-student-marketplace-with-token-credits-on-chain-escrow-and-reputation">Enigma: A Decentralized Student Marketplace with Token Credits, On-Chain Escrow, and Reputation</h2>
+<p>A 2-page <strong>IEEE</strong> conference paper describing the system, written as <strong>modular LaTeX</strong>: <code>main.tex</code> consolidates one folder per section, with a <strong>section per slice owned by each member</strong> — so everyone edits only their part.</p>
+<h3 id="read--review-no-latex-needed">Read / review (no LaTeX needed)</h3>
+<p>Every section has a Markdown mirror:</p>
+<ul>
+<li><a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/blob/publications/publications/Enigma-Decentralized-Student-Marketplace-Publications/abstract/abstract.md">Abstract</a> · <a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/blob/publications/publications/Enigma-Decentralized-Student-Marketplace-Publications/introduction/introduction.md">Introduction</a> · <a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/blob/publications/publications/Enigma-Decentralized-Student-Marketplace-Publications/architecture/architecture.md">Architecture</a></li>
+<li><a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/blob/publications/publications/Enigma-Decentralized-Student-Marketplace-Publications/slice1_token/slice1_token.md">Slice 1 — Token + Wallet (M1)</a> · <a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/blob/publications/publications/Enigma-Decentralized-Student-Marketplace-Publications/slice2_listings/slice2_listings.md">Slice 2 — Listings (M2)</a></li>
+<li><a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/blob/publications/publications/Enigma-Decentralized-Student-Marketplace-Publications/slice3_escrow/slice3_escrow.md">Slice 3 — Escrow + Ratings (M3)</a> · <a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/blob/publications/publications/Enigma-Decentralized-Student-Marketplace-Publications/slice4_reputation/slice4_reputation.md">Slice 4 — Reputation (M4)</a></li>
+<li><a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/blob/publications/publications/Enigma-Decentralized-Student-Marketplace-Publications/evaluation/evaluation.md">Evaluation</a> · <a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/blob/publications/publications/Enigma-Decentralized-Student-Marketplace-Publications/conclusions_future_work/conclusions_future_work.md">Conclusions</a></li>
+</ul>
+<h3 id="source--compiled-pdf">Source &amp; compiled PDF</h3>
+<ul>
+<li><strong>LaTeX source + README:</strong> <a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/tree/publications/publications/Enigma-Decentralized-Student-Marketplace-Publications"><code>publications/</code> folder</a></li>
+<li><strong>Compiled PDF:</strong> builds in CI on every push — download the latest <strong><code>enigma-paper-pdf</code></strong> artifact from the <a href="https://github.com/rangasam/Enigma-Decentralized-Student-Marketplace/actions/workflows/build-paper.yml">Build paper workflow</a>. <em>(Overleaf: upload the folder, set the main document to <code>main.tex</code>.)</em></li>
+</ul>
+<h3 id="evaluation-gas-and-latency">Evaluation: gas and latency</h3>
+<p>Per-operation cost. <strong>EnigCredit (Slice 1) figures are measured</strong> via <code>forge test --gas-report</code>; Slices 2–4 are not yet implemented (<code>TODO</code> stubs), so their gas is an <strong>engineering estimate</strong> anchored to the measured costs — replace with a real gas report once each owner implements their function.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Gas</th>
+<th>Latency</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>createListing</code></td>
+<td>~150,000 <em>(est.)</em></td>
+<td>~12 s</td>
+<td>one SSTORE-heavy write (struct + strings)</td>
+</tr>
+<tr>
+<td><code>purchaseItem</code></td>
+<td>~85,000 <em>(est.)</em></td>
+<td>~12 s</td>
+<td>escrow <code>transferFrom</code></td>
+</tr>
+<tr>
+<td><code>confirmDelivery</code></td>
+<td>~60,000 <em>(est.)</em></td>
+<td>~12 s</td>
+<td>release to seller</td>
+</tr>
+<tr>
+<td><code>rateUser</code></td>
+<td>~65,000 <em>(est.)</em></td>
+<td>~12 s</td>
+<td>rating storage</td>
+</tr>
+<tr>
+<td><code>mint</code> <em>(Slice 1, measured)</em></td>
+<td>38,698</td>
+<td>~12 s</td>
+<td>owner issuance — baseline</td>
+</tr>
+<tr>
+<td><code>transfer</code> <em>(Slice 1, measured)</em></td>
+<td>51,400</td>
+<td>~12 s</td>
+<td>ERC-20 value move — baseline</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Latency ≈ one block confirmation: <strong>Sepolia ~12 s</strong>, <strong>local Anvil &lt; 1 s</strong> (mines on demand). Gas is network-independent.</p>
+</blockquote>
+<h3 id="per-section-ownership">Per-section ownership</h3>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Owner</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Slice 1 — Token + Wallet</td>
+<td>Member 1</td>
+<td>drafted (validated: 7/7 tests, Anvil + Sepolia)</td>
+</tr>
+<tr>
+<td>Slice 2 — Listings</td>
+<td>Member 2</td>
+<td>design draft — <code>[refine]</code></td>
+</tr>
+<tr>
+<td>Slice 3 — Escrow + Ratings</td>
+<td>Member 3</td>
+<td>design draft — <code>[refine]</code></td>
+</tr>
+<tr>
+<td>Slice 4 — Reputation</td>
+<td>Member 4</td>
+<td>design draft — <code>[refine]</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Architecture, Slice 1, and Evaluation are drafted from validated results; Slices 2–4 are accurate design-level drafts for their owners to complete.</p>
+</blockquote>
+
+</main>
+<footer>Enigma-Decentralized-Student-Marketplace · docs generated from Markdown by <code>scripts/build-docs.py</code></footer>
+</body></html>

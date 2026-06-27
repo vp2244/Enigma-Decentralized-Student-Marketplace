@@ -3,6 +3,13 @@ mountNetworkSelector("net");
 const out = (m) => (document.getElementById("out").textContent = m);
 const idVal = () => Number(document.getElementById("id").value.trim());
 let signer, wc;
+
+// Check for listingId in URL parameters
+const urlParams = new URLSearchParams(window.location.search);
+const listingIdFromUrl = urlParams.get("listingId");
+if (listingIdFromUrl) {
+  document.getElementById("id").value = listingIdFromUrl;
+}
 document.getElementById("connect").onclick = async () => {
   try { ({ signer } = await connect()); wc = writeContracts(signer);
     document.getElementById("who").textContent = "Connected: " + (await signer.getAddress()) + " · " + net().label;
