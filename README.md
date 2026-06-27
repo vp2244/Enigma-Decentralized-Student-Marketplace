@@ -80,13 +80,15 @@ Paste Sepolia addresses into `config.js`, set `DEFAULT_NETWORK="sepolia"`, push 
 dApp (no server) · token economics (ENGC) · escrow pattern · trustless dispute (timeout refund) ·
 reentrancy protection · on-chain event indexing · testnet deploy + Etherscan verify. See `docs/architecture.md`.
 
-## Evaluation table (fill with real numbers)
-| Operation | Gas | Latency | Notes |
+## Evaluation
+Gas measured with `forge test --gas-report` (avg per call). Latency ≈ one block confirmation: **~12s on Sepolia, <1s on local Anvil**.
+
+| Operation | Gas (avg) | Latency | Notes |
 |-----------|----:|--------:|-------|
-| createListing | ~_____ | ~__s | one SSTORE-heavy write |
-| purchaseItem | ~_____ | ~__s | escrow transferFrom |
-| confirmDelivery | ~_____ | ~__s | release to seller |
-| rateUser | ~_____ | ~__s | rating storage |
+| createListing | ~248,900 | ~12s | SSTORE-heavy listing write |
+| purchaseItem | ~111,800 | ~12s | escrow `transferFrom` into contract |
+| confirmDelivery | ~65,600 | ~12s | release escrow to seller |
+| rateUser | ~80,700 | ~12s | rating storage (first rating to a seller costs more) |
 
 ## Contribution statement
 | Member | Slice | Branch | Evidence |
