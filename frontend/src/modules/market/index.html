@@ -1,20 +1,121 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Escrow / Trade · Marketplace</title>
-<link rel="stylesheet" href="../../shared/layout.css"/></head>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Escrow / Trade · Enigma</title>
+  <link rel="stylesheet" href="../../shared/layout.css"/>
+</head>
 <body>
-<header class="enigma-header"><h1>3 · Escrow / Trade <span class="owner">member3</span></h1>
-  <p class="scenario">Buy (approve → escrow), confirm delivery to release funds, or cancel after timeout to refund.</p>
-  <label class="netrow">Network: <select id="net" class="net"></select></label></header>
-<main><div class="card">
-  <button id="connect">Connect wallet</button>
-  <p id="who" class="muted"></p>
-  <input id="id" placeholder="listing id (e.g. 0)"/>
-  <h3>Buy (2 steps: approve + purchase)</h3>
-  <button id="buy">Buy</button>
-  <h3>After receiving the item</h3>
-  <button id="confirm">Confirm delivery</button>
-  <button id="cancel" class="secondary">Cancel (after timeout)</button>
-  <pre id="out" class="out"></pre>
-</div></main>
-<script type="module" src="market.js"></script></body></html>
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:22px;height:22px">
+          <polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
+        </svg>
+        Enigma Market
+      </div>
+      <div class="tagline">Decentralized · Student Goods</div>
+    </div>
+    <div class="sidebar-wallet" id="wallet-section"></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Modules</div>
+      <a href="../token/index.html"><span class="nav-icon">💳</span><span>Token & Wallet</span></a>
+      <a href="../listings/index.html"><span class="nav-icon">🏷️</span><span>Browse Listings</span></a>
+      <a href="index.html" class="active"><span class="nav-icon">🤝</span><span>Escrow / Trade</span></a>
+      <a href="../reputation/index.html"><span class="nav-icon">⭐</span><span>Reputation</span></a>
+      <div class="nav-section-label">Docs</div>
+      <a href="../../docs/index.html"><span class="nav-icon">📖</span><span>Documentation</span></a>
+      <a href="../../tracker/index.html"><span class="nav-icon">📊</span><span>Tracker</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="net-row"><span>Net:</span><select id="net" class="net"></select></div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">
+        <h1>Escrow / Trade</h1>
+        <p>Purchase items securely — tokens held in escrow until delivery is confirmed.</p>
+      </div>
+      <div class="topbar-actions">
+        <button id="refresh-market" class="secondary">↻ Refresh</button>
+        <a href="../listings/index.html" class="btn secondary" style="text-decoration:none;">← Back to Listings</a>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- ── Two-column Escrow layout ──────────────────────────────────── -->
+      <div class="escrow-columns">
+
+        <!-- LEFT: Approve / Purchase -->
+        <div class="escrow-col">
+          <div class="escrow-col-title">🛒 Approve &amp; Purchase</div>
+          <p style="font-size:.84rem;color:var(--muted);margin:0;">
+            Browse a listing and click <strong>Buy Now</strong> to load it here, then approve your ENGC allowance and lock tokens in escrow.
+          </p>
+
+          <!-- No listing selected prompt -->
+          <div id="no-listing-msg">
+            <div style="text-align:center;padding:20px 0;">
+              <div style="font-size:2.2rem;margin-bottom:8px;">🏷️</div>
+              <div style="font-weight:600;margin-bottom:6px;">No listing selected</div>
+              <p style="font-size:.82rem;color:var(--muted);margin:0 0 14px;">Click <strong>Buy Now</strong> on any available listing to start a trade.</p>
+              <a href="../listings/index.html" class="btn" style="text-decoration:none;font-size:.84rem;">Browse Listings</a>
+            </div>
+          </div>
+
+          <!-- Product info — populated by JS -->
+          <div id="listing-preview" style="display:none;">
+            <div id="listing-detail"></div>
+          </div>
+
+          <!-- Trade steps + buy button -->
+          <div id="trade-card" style="display:none;">
+            <div class="steps" style="margin-bottom:14px;">
+              <div class="step" id="step1">
+                <span class="step-num">1</span>
+                Approve ENGC
+              </div>
+              <div class="step" id="step2">
+                <span class="step-num">2</span>
+                Purchase (Escrow)
+              </div>
+              <div class="step" id="step3">
+                <span class="step-num">3</span>
+                Confirm Delivery
+              </div>
+            </div>
+            <p style="font-size:.82rem;color:var(--muted);margin:0 0 10px;">Approves your ENGC allowance, then locks tokens in escrow.</p>
+            <button id="buy">🛒 Buy (Approve + Purchase)</button>
+          </div>
+
+          <div id="out" class="status-box"></div>
+        </div>
+
+        <!-- RIGHT: My Pending Purchases — Confirm / Cancel -->
+        <div class="escrow-col">
+          <div class="escrow-col-title">📦 My Pending Purchases</div>
+          <p style="font-size:.84rem;color:var(--muted);margin:0;">
+            Items you've purchased that are awaiting delivery confirmation. Connect your wallet to see them.
+          </p>
+
+          <div id="pending-list-wrap">
+            <div class="escrow-empty">Connect your wallet to view pending purchases.</div>
+          </div>
+        </div>
+
+      </div><!-- /.escrow-columns -->
+
+    </div>
+  </div>
+</div>
+<script type="module" src="market.js"></script>
+</body>
+</html>

@@ -1,28 +1,105 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Enigma-Decentralized-Student-Marketplace</title>
-<link rel="stylesheet" href="shared/layout.css"/></head>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Enigma · Decentralized Student Marketplace</title>
+  <link rel="stylesheet" href="shared/layout.css"/>
+</head>
 <body>
-<header class="enigma-header">
-  <h1>Enigma Decentralized Student Marketplace</h1>
-  <p class="scenario">Buy/sell student goods with EnigCredit (ENGC). Escrow holds tokens until delivery; sellers earn on-chain reputation.</p>
-  <p class="team">Team Enigma · Group E · one shared web app · four vertical slices (member1–member4)</p>
-  <label class="netrow">Network: <select id="net" class="net"></select></label>
-</header>
-<nav class="enigma-nav">
-  <a href="modules/token/index.html">1 · Token + Wallet (member1)</a>
-  <a href="modules/listings/index.html">2 · Listings (member2)</a>
-  <a href="modules/market/index.html">3 · Escrow / Trade (member3)</a>
-  <a href="modules/reputation/index.html">4 · Reputation / Ratings (member4)</a>
-  <a href="docs/index.html">📖 Documentation</a>
-  <a href="tracker/index.html">📊 Tracker</a>
-</nav>
-<main><div class="card">
-  <p>EnigCredit (ERC-20) + Marketplace (escrow) + Reputation (ratings). Deploy, paste addresses into <code>shared/config.js</code> + ABIs into <code>shared/abi.js</code>.</p>
-</div></main>
-<footer><small>EnigCredit + Marketplace + Reputation · solc 0.8.20 · OpenZeppelin · Anvil/Sepolia</small></footer>
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:22px;height:22px">
+          <polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
+        </svg>
+        Enigma Market
+      </div>
+      <div class="tagline">Decentralized · Student Goods</div>
+    </div>
+    <div class="sidebar-wallet" id="wallet-section">
+      <div class="wallet-disconnected">
+        <span>Connect wallet to get started</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Modules</div>
+      <a href="modules/token/index.html"><span class="nav-icon">💳</span><span>Token & Wallet</span></a>
+      <a href="modules/listings/index.html"><span class="nav-icon">🏷️</span><span>Browse Listings</span></a>
+      <a href="modules/market/index.html"><span class="nav-icon">🤝</span><span>Escrow / Trade</span></a>
+      <a href="modules/reputation/index.html"><span class="nav-icon">⭐</span><span>Reputation</span></a>
+      <div class="nav-section-label">Docs</div>
+      <a href="docs/index.html"><span class="nav-icon">📖</span><span>Documentation</span></a>
+      <a href="tracker/index.html"><span class="nav-icon">📊</span><span>Tracker</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="net-row"><span>Net:</span><select id="net" class="net"></select></div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">
+        <h1>Welcome to Enigma Marketplace</h1>
+        <p>Buy and sell student goods with EnigCredit (ENGC) — trustless, on-chain.</p>
+      </div>
+    </div>
+    <div class="page-body">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:28px;">
+        <a href="modules/token/index.html" style="text-decoration:none;">
+          <div class="card" style="cursor:pointer;transition:border-color .18s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--line)'">
+            <div style="font-size:2rem;margin-bottom:10px;">💳</div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:1rem;color:var(--ink);margin-bottom:6px;">Token & Wallet</div>
+            <div style="font-size:0.82rem;color:var(--muted);">Connect your wallet and check your ENGC balance. Faculty can mint demo credits.</div>
+          </div>
+        </a>
+        <a href="modules/listings/index.html" style="text-decoration:none;">
+          <div class="card" style="cursor:pointer;transition:border-color .18s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--line)'">
+            <div style="font-size:2rem;margin-bottom:10px;">🏷️</div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:1rem;color:var(--ink);margin-bottom:6px;">Browse Listings</div>
+            <div style="font-size:0.82rem;color:var(--muted);">Post items for sale and browse what's available — textbooks, electronics, notes, and more.</div>
+          </div>
+        </a>
+        <a href="modules/market/index.html" style="text-decoration:none;">
+          <div class="card" style="cursor:pointer;transition:border-color .18s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--line)'">
+            <div style="font-size:2rem;margin-bottom:10px;">🤝</div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:1rem;color:var(--ink);margin-bottom:6px;">Escrow / Trade</div>
+            <div style="font-size:0.82rem;color:var(--muted);">Purchase items securely. Tokens held in escrow until delivery is confirmed.</div>
+          </div>
+        </a>
+        <a href="modules/reputation/index.html" style="text-decoration:none;">
+          <div class="card" style="cursor:pointer;transition:border-color .18s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--line)'">
+            <div style="font-size:2rem;margin-bottom:10px;">⭐</div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:1rem;color:var(--ink);margin-bottom:6px;">Reputation</div>
+            <div style="font-size:0.82rem;color:var(--muted);">Rate sellers after a completed trade. On-chain reputation builds community trust.</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚡ Getting Started</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="info-row">ℹ️ Deploy contracts and paste addresses into <code style="font-size:0.85em;background:var(--line);padding:2px 6px;border-radius:4px;">shared/config.js</code> — then connect your wallet to begin.</div>
+          <div style="font-size:0.85rem;color:var(--muted);line-height:1.7;">
+            1. Go to <strong style="color:var(--ink)">Token & Wallet</strong> — connect MetaMask and verify your ENGC balance.<br/>
+            2. Go to <strong style="color:var(--ink)">Browse Listings</strong> — post an item or click <em>Buy Now</em> on an available listing.<br/>
+            3. Complete the trade in <strong style="color:var(--ink)">Escrow / Trade</strong> — approve ENGC, confirm delivery.<br/>
+            4. Leave a rating in <strong style="color:var(--ink)">Reputation</strong> to help future buyers.
+          </div>
+        </div>
+      </div>
+
+      <footer style="margin-top:24px;font-size:0.75rem;color:var(--subtle);">
+        EnigCredit (ERC-20) · Marketplace (escrow) · Reputation · solc 0.8.20 · OpenZeppelin · Anvil/Sepolia
+      </footer>
+    </div>
+  </div>
+</div>
 <script type="module">
   import { mountNetworkSelector } from "./shared/app.js";
   mountNetworkSelector("net");
 </script>
-</body></html>
+</body>
+</html>
