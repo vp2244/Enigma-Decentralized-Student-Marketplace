@@ -97,13 +97,28 @@ contract Marketplace is ReentrancyGuard, Pausable, Ownable {
         emit ItemPurchased(id, msg.sender);
     }
 
-    /// @notice Allow the seller to cancel an available listing
+    /// @notice Allow the seller to cancel a listing.
+    /// - If Available: marks Cancelled, no token movement.
+    /// - If Pending: refunds the buyer's escrowed tokens, then marks Cancelled.
     function cancelListing(uint256 id) external nonReentrant {
         Listing storage l = listings[id];
         if (l.seller != msg.sender) revert NotSeller();
-        if (l.status != Status.Available) revert NotAvailable();
+        if (l.status != Status.Available && l.status != Status.Pending) revert NotAvailable();
 
+        address refundTo = l.buyer;
+        uint256 amount   = l.priceInTokens;
+        Status  prev     = l.status;
+
+        // Effects first (CEI)
         l.status = Status.Cancelled;
+        l.buyer  = address(0);
+        l.purchaseTimestamp = 0;
+
+        // Interaction — only transfer if tokens are held in escrow
+        if (prev == Status.Pending) {
+            token.safeTransfer(refundTo, amount);
+            emit PurchaseCancelled(id, refundTo);
+        }
 
         emit ListingCancelled(id, msg.sender);
     }

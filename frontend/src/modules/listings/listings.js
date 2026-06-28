@@ -162,6 +162,8 @@ async function refreshMyListings() {
 function buildCard(id, listing, status, isMineView) {
   const price = formatTokens(listing.priceInTokens);
   const isSeller = currentUserAddress && listing.seller.toLowerCase() === currentUserAddress.toLowerCase();
+  const isBuyer  = currentUserAddress && listing.buyer !== "0x0000000000000000000000000000000000000000"
+                   && listing.buyer.toLowerCase() === currentUserAddress.toLowerCase();
   const sellerShort = listing.seller.slice(0, 6) + "…" + listing.seller.slice(-4);
   const statusCls = "tag status-" + status.toLowerCase();
 
@@ -176,16 +178,27 @@ function buildCard(id, listing, status, isMineView) {
   if (isSeller && status === "Available") {
     actions += `<button class="remove-listing secondary" data-id="${id}">✕ Remove</button>`;
   }
-  // Seller can cancel a Pending listing — tokens revert to buyer
   if (isSeller && status === "Pending") {
-    actions += `<button class="cancel-pending danger-outline" data-id="${id}">✕ Cancel Pending</button>`;
+    actions += `<button class="cancel-listing-pending danger-outline" data-id="${id}">✕ Cancel & Refund Buyer</button>`;
+  }
+  // Buyer can rate the seller once item is sold
+  if (isBuyer && status === "Sold") {
+    actions += `<button class="rate-seller" data-id="${id}">⭐ Rate Seller</button>`;
+  }
+  // Seller can rate the buyer once item is sold
+  if (isSeller && status === "Sold") {
+    actions += `<button class="rate-buyer" data-id="${id}">⭐ Rate Buyer</button>`;
   }
 
-  // In "my listings" view show buyer info if pending
+  // Extra info rows
   let extraInfo = "";
-  if (isMineView && status === "Pending") {
+  if (status === "Pending" && (isMineView || isBuyer)) {
     const buyerShort = listing.buyer.slice(0, 6) + "…" + listing.buyer.slice(-4);
-    extraInfo = `<div class="listing-card-seller" style="margin-top:4px;">Buyer: ${buyerShort}</div>`;
+    extraInfo += `<div class="listing-card-seller" style="margin-top:4px;">Buyer: ${buyerShort}</div>`;
+  }
+  if (status === "Sold" && listing.buyer !== "0x0000000000000000000000000000000000000000") {
+    const buyerShort = listing.buyer.slice(0, 6) + "…" + listing.buyer.slice(-4);
+    extraInfo += `<div class="listing-card-seller" style="margin-top:4px;">Buyer: ${buyerShort}</div>`;
   }
 
   return `<div class="listing-card">
@@ -215,9 +228,13 @@ function handleCardClick(e) {
     const id = e.target.getAttribute("data-id");
     handleRemove(e.target, id);
   }
-  if (e.target.classList.contains("cancel-pending")) {
+  if (e.target.classList.contains("cancel-listing-pending")) {
     const id = e.target.getAttribute("data-id");
     handleCancelPending(e.target, id);
+  }
+  if (e.target.classList.contains("rate-seller") || e.target.classList.contains("rate-buyer")) {
+    const id = e.target.getAttribute("data-id");
+    handleRate(e.target, id);
   }
 }
 
@@ -269,6 +286,31 @@ async function handleCancelPending(btn, id) {
     }
     btn.textContent = "✕ Cancel Pending";
     btn.disabled = false;
+  }
+}
+
+// Rate the other party after a Sold listing (buyer rates seller, seller rates buyer)
+async function handleRate(btn, id) {
+  if (!wc) { alert("Connect your wallet first."); return; }
+  const stars = Number(prompt("Rate 1–5 stars:", "5"));
+  if (!stars || stars < 1 || stars > 5) { alert("Enter a number between 1 and 5."); return; }
+  try {
+    btn.textContent = "Submitting…";
+    btn.disabled = true;
+    const tx = await wc.reputation.rateUser(Number(id), stars);
+    await tx.wait();
+    btn.textContent = "✅ Rated";
+    // Leave disabled — they've used their one rating for this listing
+  } catch (err) {
+    const msg = String(err.message || err);
+    if (msg.includes("AlreadyRated")) {
+      btn.textContent = "✅ Already Rated";
+      btn.disabled = true;
+    } else {
+      alert("Error: " + msg);
+      btn.textContent = "⭐ Rate";
+      btn.disabled = false;
+    }
   }
 }
 
