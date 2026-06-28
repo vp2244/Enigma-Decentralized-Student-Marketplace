@@ -98,6 +98,15 @@ async function fetchRating(address) {
   return ` <span class="rating-badge">⭐ 0.0</span>`;
 }
 
+// ── Check if a listing has already been rated (buyer rated seller) ─────────
+// Uses listingRated from the deployed ABI — only buyers can rate sellers.
+async function hasListingBeenRated(listingId) {
+  try {
+    const rc = readContracts();
+    return await rc.reputation.listingRated(listingId);
+  } catch (_) { return false; }
+}
+
 // ── Browse all listings — excludes the current user's own listings ─────────
 async function refreshListings() {
   const listEl   = document.getElementById("list");
@@ -137,7 +146,8 @@ async function refreshListings() {
       const buyerRating = (status === "Pending" || status === "Sold") && listing.buyer && listing.buyer !== zeroAddr
         ? await fetchRating(listing.buyer)
         : ` <span class="rating-badge">⭐ 0.0</span>`;
-      return buildCard(id, listing, status, false, sellerRating, buyerRating);
+      const alreadyRated = status === "Sold" ? await hasListingBeenRated(id) : false;
+      return buildCard(id, listing, status, false, sellerRating, buyerRating, alreadyRated);
     }));
     listEl.innerHTML = cards.join("");
   } catch (e) {
@@ -181,7 +191,8 @@ async function refreshMyListings() {
       const buyerRating = (status === "Pending" || status === "Sold") && listing.buyer && listing.buyer !== zeroAddr
         ? await fetchRating(listing.buyer)
         : ` <span class="rating-badge">⭐ 0.0</span>`;
-      return buildCard(id, listing, status, true, sellerRating, buyerRating);
+      const alreadyRated = status === "Sold" ? await hasListingBeenRated(id) : false;
+      return buildCard(id, listing, status, true, sellerRating, buyerRating, alreadyRated);
     }));
     gridEl.innerHTML = cards.join("");
   } catch (e) {
@@ -190,7 +201,7 @@ async function refreshMyListings() {
 }
 
 // ── Card builder ──────────────────────────────────────────────────────────
-function buildCard(id, listing, status, isMineView, sellerRating = " <span class=\"rating-badge\">⭐ 0.0</span>", buyerRating = " <span class=\"rating-badge\">⭐ 0.0</span>") {
+function buildCard(id, listing, status, isMineView, sellerRating = " <span class=\"rating-badge\">⭐ 0.0</span>", buyerRating = " <span class=\"rating-badge\">⭐ 0.0</span>", alreadyRated = false) {
   const price = formatTokens(listing.priceInTokens);
   const isSeller = currentUserAddress && listing.seller.toLowerCase() === currentUserAddress.toLowerCase();
   const isBuyer  = currentUserAddress && listing.buyer !== "0x0000000000000000000000000000000000000000"
@@ -212,8 +223,13 @@ function buildCard(id, listing, status, isMineView, sellerRating = " <span class
   if (isSeller && status === "Pending") {
     actions += `<button class="cancel-listing-pending danger-outline" data-id="${id}">✕ Cancel & Refund Buyer</button>`;
   }
-  if (isSeller && status === "Sold") {
-    actions += `<button class="rate-buyer" data-id="${id}">⭐ Rate Buyer</button>`;
+  // Only the BUYER can rate the seller (per deployed contract — listingRated tracks buyer→seller only)
+  if (isBuyer && status === "Sold") {
+    if (alreadyRated) {
+      actions += `<button class="rate-seller secondary" disabled>✅ Seller Rated</button>`;
+    } else {
+      actions += `<button class="rate-seller" data-id="${id}">⭐ Rate Seller</button>`;
+    }
   }
 
   const zeroAddr = "0x0000000000000000000000000000000000000000";
@@ -297,7 +313,7 @@ async function handleCancelPending(btn, id) {
   }
 }
 
-// Rate the other party after a Sold listing (buyer rates seller, seller rates buyer)
+// Rate the seller after a Sold listing (buyer only, per deployed contract)
 async function handleRate(btn, id) {
   if (!wc) { alert("Connect your wallet first."); return; }
   const stars = Number(prompt("Rate 1–5 stars:", "5"));
@@ -310,7 +326,7 @@ async function handleRate(btn, id) {
     btn.textContent = "✅ Rated";
     refreshListings();
     refreshMyListings();
-    // Leave disabled — they've used their one rating for this listing
+    // Leave disabled — one rating per listing
   } catch (err) {
     const msg = String(err.message || err);
     if (msg.includes("AlreadyRated")) {
