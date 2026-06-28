@@ -1,4 +1,4 @@
-import { readContracts, parseTokens, formatTokens } from "../../shared/app.js";
+import { readContracts, mountNetworkSelector, parseTokens, formatTokens } from "../../shared/app.js";
 import { mountSidebarWallet } from "../../shared/wallet.js";
 
 const postOut = (m, type = "") => {
