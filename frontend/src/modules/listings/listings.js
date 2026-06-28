@@ -215,9 +215,6 @@ function buildCard(id, listing, status, isMineView, sellerRating = " <span class
   const zeroAddr = "0x0000000000000000000000000000000000000000";
   const isBuyer = currentUserAddress && listing.buyer && listing.buyer !== zeroAddr
     && listing.buyer.toLowerCase() === currentUserAddress.toLowerCase();
-  if (isBuyer && status === "Sold") {
-    actions += `<button class="rate-seller" data-id="${id}">⭐ Rate Seller</button>`;
-  }
 
   // In "my listings" view show buyer info if pending or sold
   let extraInfo = "";
