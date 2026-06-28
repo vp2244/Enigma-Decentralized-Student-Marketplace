@@ -98,6 +98,14 @@ async function fetchRating(address) {
   return ` <span class="rating-badge">⭐ 0.0</span>`;
 }
 
+// ── Check if seller has already rated the buyer for a listing ─────────────
+async function hasSellerRatedBuyer(listingId) {
+  try {
+    const rc = readContracts();
+    return await rc.reputation.sellerRatedBuyer(listingId);
+  } catch (_) { return false; }
+}
+
 // ── Browse all listings — excludes the current user's own listings ─────────
 async function refreshListings() {
   const listEl   = document.getElementById("list");
@@ -137,7 +145,8 @@ async function refreshListings() {
       const buyerRating = (status === "Pending" || status === "Sold") && listing.buyer && listing.buyer !== zeroAddr
         ? await fetchRating(listing.buyer)
         : ` <span class="rating-badge">⭐ 0.0</span>`;
-      return buildCard(id, listing, status, false, sellerRating, buyerRating);
+      // Sellers don't appear in the browse grid, so alreadyRatedBuyer is always false here
+      return buildCard(id, listing, status, false, sellerRating, buyerRating, false);
     }));
     listEl.innerHTML = cards.join("");
   } catch (e) {
@@ -181,7 +190,9 @@ async function refreshMyListings() {
       const buyerRating = (status === "Pending" || status === "Sold") && listing.buyer && listing.buyer !== zeroAddr
         ? await fetchRating(listing.buyer)
         : ` <span class="rating-badge">⭐ 0.0</span>`;
-      return buildCard(id, listing, status, true, sellerRating, buyerRating);
+      // Check on-chain whether this seller has already rated the buyer
+      const alreadyRatedBuyer = status === "Sold" ? await hasSellerRatedBuyer(id) : false;
+      return buildCard(id, listing, status, true, sellerRating, buyerRating, alreadyRatedBuyer);
     }));
     gridEl.innerHTML = cards.join("");
   } catch (e) {
@@ -190,7 +201,7 @@ async function refreshMyListings() {
 }
 
 // ── Card builder ──────────────────────────────────────────────────────────
-function buildCard(id, listing, status, isMineView, sellerRating = " <span class=\"rating-badge\">⭐ 0.0</span>", buyerRating = " <span class=\"rating-badge\">⭐ 0.0</span>") {
+function buildCard(id, listing, status, isMineView, sellerRating = " <span class=\"rating-badge\">⭐ 0.0</span>", buyerRating = " <span class=\"rating-badge\">⭐ 0.0</span>", alreadyRatedBuyer = false) {
   const price = formatTokens(listing.priceInTokens);
   const isSeller = currentUserAddress && listing.seller.toLowerCase() === currentUserAddress.toLowerCase();
   const isBuyer  = currentUserAddress && listing.buyer !== "0x0000000000000000000000000000000000000000"
@@ -213,7 +224,11 @@ function buildCard(id, listing, status, isMineView, sellerRating = " <span class
     actions += `<button class="cancel-listing-pending danger-outline" data-id="${id}">✕ Cancel & Refund Buyer</button>`;
   }
   if (isSeller && status === "Sold") {
-    actions += `<button class="rate-buyer" data-id="${id}">⭐ Rate Buyer</button>`;
+    if (alreadyRatedBuyer) {
+      actions += `<button class="rate-buyer secondary" disabled>✅ Buyer Rated</button>`;
+    } else {
+      actions += `<button class="rate-buyer" data-id="${id}">⭐ Rate Buyer</button>`;
+    }
   }
 
   const zeroAddr = "0x0000000000000000000000000000000000000000";
