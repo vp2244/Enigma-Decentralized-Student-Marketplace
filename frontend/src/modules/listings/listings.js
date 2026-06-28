@@ -193,6 +193,8 @@ async function refreshMyListings() {
 function buildCard(id, listing, status, isMineView, sellerRating = " <span class=\"rating-badge\">⭐ 0.0</span>", buyerRating = " <span class=\"rating-badge\">⭐ 0.0</span>") {
   const price = formatTokens(listing.priceInTokens);
   const isSeller = currentUserAddress && listing.seller.toLowerCase() === currentUserAddress.toLowerCase();
+  const isBuyer  = currentUserAddress && listing.buyer !== "0x0000000000000000000000000000000000000000"
+                   && listing.buyer.toLowerCase() === currentUserAddress.toLowerCase();
   const sellerShort = listing.seller.slice(0, 6) + "…" + listing.seller.slice(-4);
   const statusCls = "tag status-" + status.toLowerCase();
 
@@ -310,6 +312,31 @@ async function handleRate(btn, id) {
     btn.textContent = "✅ Rated";
     refreshListings();
     refreshMyListings();
+  } catch (err) {
+    const msg = String(err.message || err);
+    if (msg.includes("AlreadyRated")) {
+      btn.textContent = "✅ Already Rated";
+      btn.disabled = true;
+    } else {
+      alert("Error: " + msg);
+      btn.textContent = "⭐ Rate";
+      btn.disabled = false;
+    }
+  }
+}
+
+// Rate the other party after a Sold listing (buyer rates seller, seller rates buyer)
+async function handleRate(btn, id) {
+  if (!wc) { alert("Connect your wallet first."); return; }
+  const stars = Number(prompt("Rate 1–5 stars:", "5"));
+  if (!stars || stars < 1 || stars > 5) { alert("Enter a number between 1 and 5."); return; }
+  try {
+    btn.textContent = "Submitting…";
+    btn.disabled = true;
+    const tx = await wc.reputation.rateUser(Number(id), stars);
+    await tx.wait();
+    btn.textContent = "✅ Rated";
+    // Leave disabled — they've used their one rating for this listing
   } catch (err) {
     const msg = String(err.message || err);
     if (msg.includes("AlreadyRated")) {
