@@ -22,22 +22,11 @@ jobs:
       REPUTATION_ADDRESS: ${{ secrets.REPUTATION_ADDRESS }}
     steps:
       - uses: actions/checkout@v4
-      - name: Inject deployment contract addresses
+      - name: Inject contract addresses
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import os
-          path = Path("frontend/src/shared/config.js")
-          text = path.read_text()
-          replacements = {
-              "__ENIG_CREDIT_ADDRESS__": os.environ.get("ENIG_CREDIT_ADDRESS", "0x31627B4593B3384BD835889F1Df5473ebcbF0de5"),
-              "__MARKETPLACE_ADDRESS__": os.environ.get("MARKETPLACE_ADDRESS", "0xA18A3852df23d161EfD8D7772CBdE9FA254905cb"),
-              "__REPUTATION_ADDRESS__": os.environ.get("REPUTATION_ADDRESS", "0x64c9edB8e9f5d26508E750dd921E3C680e007A6C"),
-          }
-          for placeholder, value in replacements.items():
-              text = text.replace(placeholder, value)
-          path.write_text(text)
-          PY
+          sed -i "s|__ENIG_CREDIT_ADDRESS__|${ENIG_CREDIT_ADDRESS}|g" frontend/src/shared/config.js
+          sed -i "s|__MARKETPLACE_ADDRESS__|${MARKETPLACE_ADDRESS}|g" frontend/src/shared/config.js
+          sed -i "s|__REPUTATION_ADDRESS__|${REPUTATION_ADDRESS}|g" frontend/src/shared/config.js
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
