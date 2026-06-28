@@ -6,6 +6,7 @@
 > Buy/sell student goods with **EnigCredit (ENGC)** — smart-contract escrow + on-chain reputation. No backend.
 > A standalone prototype (token + marketplace), distinct from the attestation-registry prototypes. **4 vertical slices.**
 
+
 <!-- TRYIT_START -->
 ## ▶ Try it
 
