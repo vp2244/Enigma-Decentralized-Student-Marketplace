@@ -13,11 +13,6 @@ export async function connect() {
   if (!window.ethereum) throw new Error("No wallet found. Reads work without one; writes need MetaMask on " + net().label + ".");
   const provider = new ethers.BrowserProvider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
-  const { chainId } = await provider.getNetwork();
-  const expected = BigInt(net().chainId);
-  if (chainId !== expected) {
-    throw new Error(`Wrong network. Switch MetaMask to ${net().label} (chainId ${net().chainId}).`);
-  }
   return { provider, signer: await provider.getSigner() };
 }
 function build(runner) {

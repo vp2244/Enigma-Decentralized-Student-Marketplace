@@ -53,24 +53,14 @@ export function buildSidebar({ activePage }) {
 }
 
 export function initLayout({ activePage }) {
-  // Wrap existing body children in a main-content div, then prepend the sidebar
-  // — avoids innerHTML serialisation which would destroy already-attached event listeners.
-  const mainContent = document.createElement("div");
-  mainContent.className = "main-content";
-  mainContent.id = "main-content";
-  while (document.body.firstChild) {
-    mainContent.appendChild(document.body.firstChild);
-  }
-
-  const sidebarEl = document.createElement("div");
-  sidebarEl.innerHTML = buildSidebar({ activePage });
-  const sidebar = sidebarEl.firstElementChild;
-
-  const layout = document.createElement("div");
-  layout.className = "layout";
-  layout.appendChild(sidebar);
-  layout.appendChild(mainContent);
-
-  document.body.appendChild(layout);
+  // Wrap body content
+  const originalBody = document.body.innerHTML;
+  document.body.innerHTML = `
+    <div class="layout">
+      ${buildSidebar({ activePage })}
+      <div class="main-content" id="main-content">
+        ${originalBody}
+      </div>
+    </div>`;
   mountNetworkSelector("net");
 }

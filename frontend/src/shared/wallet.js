@@ -68,7 +68,7 @@ export async function mountSidebarWallet(containerId, onConnected) {
     renderDisconnected(el, () => handleConnect(el, onConnected));
   }
 
-  // React to MetaMask account/chain changes
+  // React to MetaMask account changes
   if (window.ethereum) {
     window.ethereum.on("accountsChanged", (accounts) => {
       if (accounts.length === 0) {
@@ -79,7 +79,6 @@ export async function mountSidebarWallet(containerId, onConnected) {
         location.reload();
       }
     });
-    window.ethereum.on("chainChanged", () => location.reload());
   }
 }
 

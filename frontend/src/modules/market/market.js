@@ -1,5 +1,7 @@
-import { readContracts, net, formatTokens } from "../../shared/app.js";
+import { readContracts, mountNetworkSelector, net, formatTokens } from "../../shared/app.js";
 import { mountSidebarWallet } from "../../shared/wallet.js";
+
+mountNetworkSelector("net");
 
 const outEl = document.getElementById("out");
 const out = (m, type = "") => {
@@ -147,14 +149,16 @@ async function refreshPendingPurchases() {
   try {
     const rc = readContracts();
     const total = Number(await rc.marketplace.totalListings());
-    const ids = Array.from({ length: total }, (_, i) => i);
-    const allListings = await Promise.all(ids.map(i => rc.marketplace.getListing(i)));
-    const pending = allListings
-      .map((listing, i) => ({ id: i, listing }))
-      .filter(({ listing }) =>
+    const pending = [];
+    for (let i = 0; i < total; i++) {
+      const listing = await rc.marketplace.getListing(i);
+      if (
         Number(listing.status) === 1 && // Pending
         listing.buyer.toLowerCase() === currentUserAddress.toLowerCase()
-      );
+      ) {
+        pending.push({ id: i, listing });
+      }
+    }
 
     if (pending.length === 0) {
       wrap.innerHTML = `<div class="escrow-empty">No pending purchases.<br/>Items you buy will appear here for confirmation.</div>`;
@@ -203,21 +207,15 @@ function buildPendingItem({ id, listing }) {
   </div>`;
 }
 
-// Shared pre-flight: verifies listing is still Pending and caller is the buyer.
-// Returns the listing on success, or null if validation failed (alert already shown).
-async function assertPending(id) {
-  const rc = readContracts();
-  const l = await rc.marketplace.getListing(id);
-  const callerAddr = await signer.getAddress();
-  if (Number(l.status) !== 1) { alert(friendlyError({ message: "NotPending" })); return null; }
-  if (l.buyer.toLowerCase() !== callerAddr.toLowerCase()) { alert(friendlyError({ message: "NotBuyer" })); return null; }
-  return l;
-}
-
 async function handleConfirm(btn, id) {
   if (!wc) { alert("Connect your wallet first."); return; }
   try {
-    if (!await assertPending(id)) return;
+    const rc = readContracts();
+    const l = await rc.marketplace.getListing(id);
+    const callerAddr = await signer.getAddress();
+    if (Number(l.status) !== 1) { alert(friendlyError({ message: "NotPending" })); return; }
+    if (l.buyer.toLowerCase() !== callerAddr.toLowerCase()) { alert(friendlyError({ message: "NotBuyer" })); return; }
+
     btn.textContent = "Confirming…";
     btn.disabled = true;
     const tx = await wc.marketplace.confirmDelivery(id);
@@ -235,7 +233,12 @@ async function handleConfirm(btn, id) {
 async function handleCancelPurchase(btn, id) {
   if (!wc) { alert("Connect your wallet first."); return; }
   try {
-    if (!await assertPending(id)) return;
+    const rc = readContracts();
+    const l = await rc.marketplace.getListing(id);
+    const callerAddr = await signer.getAddress();
+    if (Number(l.status) !== 1) { alert(friendlyError({ message: "NotPending" })); return; }
+    if (l.buyer.toLowerCase() !== callerAddr.toLowerCase()) { alert(friendlyError({ message: "NotBuyer" })); return; }
+
     btn.textContent = "Cancelling…";
     btn.disabled = true;
     const tx = await wc.marketplace.cancelPurchase(id);

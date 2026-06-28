@@ -1,5 +1,7 @@
-import { writeContracts, readContracts } from "../../shared/app.js";
+import { writeContracts, readContracts, mountNetworkSelector } from "../../shared/app.js";
 import { mountSidebarWallet } from "../../shared/wallet.js";
+
+mountNetworkSelector("net");
 
 const rateOut = (m, type = "") => {
   const el = document.getElementById("rate-out");
