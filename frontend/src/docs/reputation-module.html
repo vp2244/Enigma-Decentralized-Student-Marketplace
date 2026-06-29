@@ -1,0 +1,70 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slice 4 · Reputation · Enigma Docs</title>
+<link rel="stylesheet" href="docs.css"></head>
+<body>
+<header class="topbar"><a class="brand" href="../index.html">⟵ Enigma Demo</a><nav><a href="index.html">Docs Home</a><a href="why-blockchain.html">Why Blockchain</a><a href="network-tests.html">Network Tests</a><a href="token-module.html">Slice 1 · Token</a><a href="listings-module.html">Slice 2 · Listings</a><a href="escrow-module.html">Slice 3 · Escrow</a><a href="reputation-module.html">Slice 4 · Reputation</a><a href="contributing.html">Workflow</a><a href="procedures.html">Procedures</a><a href="publications.html">Publications</a><a href="security.html">Security</a><a href="../tracker/index.html">Tracker</a></nav></header>
+<main class="doc">
+<h1 id="slice-4--reputation--ratings-reputationsol">Slice 4 — Reputation / Ratings (<code>Reputation.sol</code>)</h1>
+<blockquote>
+<p>Owner: <strong>member4</strong> (Omair Naeem) · Branch: <code>feature/member4-reputation</code> · dedicated contract that reads Marketplace state.</p>
+</blockquote>
+<h2 id="what-it-does">What it does</h2>
+<p>After a trade is <strong>Sold</strong> (buyer confirmed delivery), each side may rate the other <strong>1–5</strong>, <strong>once per direction per listing</strong>. Totals are stored on-chain; the average is computed off-chain (gas-efficient) or via a scaled helper.</p>
+<h2 id="functions">Functions</h2>
+<ul>
+<li><code>rateUser(listingId, rating)</code> — <strong>bidirectional</strong>: the <strong>buyer rates the seller</strong> (flag <code>buyerRatedSeller</code>) <em>or</em> the <strong>seller rates the buyer</strong> (flag <code>sellerRatedBuyer</code>). Requires <code>Status.Sold</code>, <code>1 ≤ rating ≤ 5</code>, caller is the listing's buyer or seller, and not already rated in that direction. Emits <code>RatingSubmitted</code>.</li>
+<li><code>getAverageRating(user)</code> → <code>(total, count)</code> raw accumulators (client divides to avoid truncation).</li>
+<li><code>getAverageRatingScaled(user)</code> → average <strong>×100</strong> (e.g. <code>450</code> = 4.50 ★), <code>0</code> when no ratings.</li>
+<li><code>buyerRatedSeller(id)</code> / <code>sellerRatedBuyer(id)</code> — public flags for the UI.</li>
+</ul>
+<h2 id="design">Design</h2>
+<p><code>Reputation</code> holds the rating ledger and reads <code>Marketplace.getListing(id)</code> to authenticate the rater (seller, buyer, status) — keeping escrow (member3) and reputation (member4) as clean, separate verticals with no shared mutable state. Guarded by <code>ReentrancyGuard</code>.</p>
+<h2 id="events--errors">Events &amp; errors</h2>
+<ul>
+<li>Event: <code>RatingSubmitted(rater, rated, rating, listingId)</code>.</li>
+<li>Errors: <code>NotSold</code>, <code>BadRating</code>, <code>Unauthorized</code> (not buyer/seller), <code>AlreadyRated</code>.</li>
+</ul>
+<h2 id="tests-testreputationtsol">Tests (<code>test/Reputation.t.sol</code>)</h2>
+<p>rate after Sold (total/count + flag) · rate-twice revert (<code>AlreadyRated</code>) · non-participant revert (<code>Unauthorized</code>) · bad rating revert (<code>BadRating</code>) · unsold revert (<code>NotSold</code>).</p>
+<h2 id="threat-model-security">Threat model (Security)</h2>
+<table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rating manipulation by outsiders</td>
+<td><code>Unauthorized</code> — only the listing's buyer or seller</td>
+</tr>
+<tr>
+<td>Score inflation / double-rating</td>
+<td><code>buyerRatedSeller</code> / <code>sellerRatedBuyer</code> flags + <code>AlreadyRated</code></td>
+</tr>
+<tr>
+<td>Rating an incomplete trade</td>
+<td><code>NotSold</code> — only after <code>Status.Sold</code></td>
+</tr>
+<tr>
+<td>Out-of-range scores</td>
+<td><code>BadRating</code> — enforce 1–5</td>
+</tr>
+<tr>
+<td>Reentrancy via cross-contract read</td>
+<td><code>nonReentrant</code>; only a <code>view</code> external call (<code>getListing</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="todo-checklist">TODO checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />star-picker widget · [ ] show avg on listing cards (batch read) · [ ] reputation analytics view.</label></li>
+</ul>
+<h2 id="walkthrough">Walkthrough</h2>
+<p>📸 Slice-4 validation (sell → buy → confirm → rate) on Local Anvil + Hosted Sepolia: follow Slice 1's dual-network pattern in <a href="network-tests.html"><code>network-tests.md</code></a>. CLI reference: <a href="procedures.html"><code>PROCEDURES.md</code></a>.</p>
+
+</main>
+<footer>Enigma-Decentralized-Student-Marketplace · docs generated from Markdown by <code>scripts/build-docs.py</code></footer>
+</body></html>

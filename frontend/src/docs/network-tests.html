@@ -3,11 +3,11 @@
 <title>Network Tests · Enigma Docs</title>
 <link rel="stylesheet" href="docs.css"></head>
 <body>
-<header class="topbar"><a class="brand" href="../index.html">⟵ Enigma Demo</a><nav><a href="index.html">Docs Home</a><a href="why-blockchain.html">Why Blockchain</a><a href="network-tests.html">Network Tests</a><a href="contributing.html">Workflow</a><a href="procedures.html">Procedures</a><a href="publications.html">Publications</a><a href="security.html">Security</a><a href="../tracker/index.html">Tracker</a></nav></header>
+<header class="topbar"><a class="brand" href="../index.html">⟵ Enigma Demo</a><nav><a href="index.html">Docs Home</a><a href="why-blockchain.html">Why Blockchain</a><a href="network-tests.html">Network Tests</a><a href="token-module.html">Slice 1 · Token</a><a href="listings-module.html">Slice 2 · Listings</a><a href="escrow-module.html">Slice 3 · Escrow</a><a href="reputation-module.html">Slice 4 · Reputation</a><a href="contributing.html">Workflow</a><a href="procedures.html">Procedures</a><a href="publications.html">Publications</a><a href="security.html">Security</a><a href="../tracker/index.html">Tracker</a></nav></header>
 <main class="doc">
-<h1 id="validating-slice-1-token--wallet--local-anvil--hosted-sepolia">Validating Slice 1 (Token + Wallet) — Local Anvil &amp; Hosted Sepolia</h1>
+<h1 id="validating-the-marketplace-slices-14--local-anvil--hosted-sepolia">Validating the Marketplace (Slices 1–4) — Local Anvil &amp; Hosted Sepolia</h1>
 <blockquote>
-<p>Audience: every team member. This guide shows how to validate the <strong>EnigCredit</strong> token (mint · owner-only · balance) end-to-end on <strong>two networks</strong>, using the <strong>same</strong> GUI:</p>
+<p>Audience: every team member. Sections <strong>A–B</strong> validate <strong>Slice 1</strong> (the EnigCredit token); sections <strong>C–D</strong> validate the <strong>Slices 2–4 lifecycle</strong> (list → buy/escrow → confirm → rate). Both use the same two networks and the same GUI:</p>
 <table>
 <thead>
 <tr>
@@ -89,6 +89,70 @@
 <p>Confirm independently on <strong><a href="https://sepolia.etherscan.io">Sepolia Etherscan</a></strong> (read <code>owner</code>, <code>totalSupply</code>, <code>balanceOf</code>). A non-owner mint reverts with <code>CALL_EXCEPTION</code>, exactly as on Anvil.</p>
 <blockquote>
 <p>✅ <strong>Validated:</strong> the live Sepolia contract mints for the owner, rejects non-owners, and the hosted GUI reads/writes it correctly.</p>
+</blockquote>
+<hr />
+<h2 id="c--marketplace-lifecycle-test-slices-24--local-anvil">C · Marketplace Lifecycle Test (Slices 2–4) — Local Anvil</h2>
+<p>Slices 2–4 are one flow: <strong>Member 2</strong> lists an item → <strong>Member 3</strong> escrows the trade → <strong>Member 4</strong> records reputation. Validate them as a single lifecycle with <strong>three roles</strong>: <strong>owner</strong> (deployer, account[0]), <strong>seller</strong> (account[1]), <strong>buyer</strong> (account[2]).</p>
+<blockquote>
+<p><strong>Golden rule — value is escrowed, not sent.</strong> <code>purchaseItem</code> pulls the price into the <em>contract</em>; it is released to the seller <strong>only</strong> on the buyer's <code>confirmDelivery</code>, or refunded to the buyer via <code>cancelPurchase</code> after the timeout. No party can extract value early.</p>
+</blockquote>
+<h3 id="c1-cli-walkthrough-reproducible--verified">C1. CLI walkthrough (reproducible — verified)</h3>
+<p>Start the chain and deploy as in <strong>§A1</strong> (addresses match the <code>anvil</code> block of <code>config.js</code>), then set:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="va">RPC</span><span class="op">=</span>http://127.0.0.1:8545</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">ENG</span><span class="op">=</span>0x5FbDB2315678afecb367f032d93F642f64180aa3      <span class="co"># EnigCredit</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="va">MK</span><span class="op">=</span>0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512        <span class="co"># Marketplace</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="va">RP</span><span class="op">=</span>0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0        <span class="co"># Reputation</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="va">SELLER_K</span><span class="op">=</span>0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d   <span class="co"># account[1]</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="va">BUYER_K</span><span class="op">=</span>0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a    <span class="co"># account[2]</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="va">SELLER</span><span class="op">=</span>0x70997970C51812dc3A010C7d01b50e0d17dc79C8</span></code></pre></div>
+<p><strong>Slice 2 — seller lists an item (50 ENGC):</strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cast</span> send <span class="va">$MK</span> <span class="st">&#39;createListing(string,string,string,uint256,string)&#39;</span> <span class="dt">\</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Calc Textbook&quot;</span> <span class="st">&quot;Books&quot;</span> <span class="st">&quot;Good&quot;</span> 50000000000000000000 <span class="st">&quot;&quot;</span> <span class="at">--private-key</span> <span class="va">$SELLER_K</span> <span class="at">--rpc-url</span> <span class="va">$RPC</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">cast</span> call <span class="va">$MK</span> <span class="st">&#39;totalListings()(uint256)&#39;</span> <span class="at">--rpc-url</span> <span class="va">$RPC</span>          <span class="co"># 1</span></span></code></pre></div>
+<p>→ listing <strong>id 0</strong>, status <strong>Available</strong>. Emits <code>ListingCreated</code>.</p>
+<p><strong>Slice 3 — buyer funds, approves, and purchases (escrow):</strong></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cast</span> send <span class="va">$ENG</span> <span class="st">&#39;faucet()&#39;</span> <span class="at">--private-key</span> <span class="va">$BUYER_K</span> <span class="at">--rpc-url</span> <span class="va">$RPC</span>                       <span class="co"># buyer gets 1,000 ENGC</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cast</span> send <span class="va">$ENG</span> <span class="st">&#39;approve(address,uint256)&#39;</span> <span class="va">$MK</span> 50000000000000000000 <span class="at">--private-key</span> <span class="va">$BUYER_K</span> <span class="at">--rpc-url</span> <span class="va">$RPC</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">cast</span> send <span class="va">$MK</span> <span class="st">&#39;purchaseItem(uint256)&#39;</span> 0 <span class="at">--private-key</span> <span class="va">$BUYER_K</span> <span class="at">--rpc-url</span> <span class="va">$RPC</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="ex">cast</span> call <span class="va">$ENG</span> <span class="st">&#39;balanceOf(address)(uint256)&#39;</span> <span class="va">$MK</span> <span class="at">--rpc-url</span> <span class="va">$RPC</span>                       <span class="co"># 50e18 held in escrow</span></span></code></pre></div>
+<p>→ status <strong>Pending</strong>; the 50 ENGC now sits in the <strong>Marketplace</strong> contract (escrow). Emits <code>ItemPurchased</code>. <em>(One-step alternative: <code>purchaseWithPermit</code> — no separate <code>approve</code>.)</em></p>
+<p><strong>Slice 3 — buyer confirms delivery → seller is paid:</strong></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cast</span> send <span class="va">$MK</span> <span class="st">&#39;confirmDelivery(uint256)&#39;</span> 0 <span class="at">--private-key</span> <span class="va">$BUYER_K</span> <span class="at">--rpc-url</span> <span class="va">$RPC</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cast</span> call <span class="va">$ENG</span> <span class="st">&#39;balanceOf(address)(uint256)&#39;</span> <span class="va">$SELLER</span> <span class="at">--rpc-url</span> <span class="va">$RPC</span>                   <span class="co"># 50e18 → seller</span></span></code></pre></div>
+<p>→ status <strong>Sold</strong>; escrow released to the seller. Emits <code>DeliveryConfirmed</code>.</p>
+<p><strong>Slice 4 — buyer rates the seller (1–5, once):</strong></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cast</span> send <span class="va">$RP</span> <span class="st">&#39;rateUser(uint256,uint8)&#39;</span> 0 5 <span class="at">--private-key</span> <span class="va">$BUYER_K</span> <span class="at">--rpc-url</span> <span class="va">$RPC</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cast</span> call <span class="va">$RP</span> <span class="st">&#39;getAverageRating(address)(uint256,uint256)&#39;</span> <span class="va">$SELLER</span> <span class="at">--rpc-url</span> <span class="va">$RPC</span>     <span class="co"># (5, 1)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">cast</span> call <span class="va">$RP</span> <span class="st">&#39;getAverageRatingScaled(address)(uint256)&#39;</span> <span class="va">$SELLER</span> <span class="at">--rpc-url</span> <span class="va">$RPC</span>       <span class="co"># 500 = 5.00 ★</span></span></code></pre></div>
+<p>→ <code>RatingSubmitted</code>; a second <code>rateUser</code> in the same direction reverts <code>AlreadyRated</code>, and a non-buyer/seller caller reverts <code>Unauthorized</code>.</p>
+<blockquote>
+<p>✅ <strong>Validated (verified output):</strong> list → escrow (50 held) → confirm (50 to seller, <em>Sold</em>) → 5.00★. <strong>Variations:</strong> seller <code>cancelListing</code> on an <em>Available</em> item; buyer <code>cancelPurchase</code> after <code>CANCELLATION_TIMEOUT</code> (refund); non-buyer <code>rateUser</code> → <code>Unauthorized</code>.</p>
+</blockquote>
+<h3 id="c2-gui-walkthrough-local-page">C2. GUI walkthrough (local page)</h3>
+<p>Serve the GUI (<strong>§A2</strong>) and point MetaMask at Anvil (<strong>§A3</strong>). Use three imported Anvil accounts (owner, seller, buyer); fund the buyer with <strong>Get 1,000 ENGC</strong> (Slice-1 faucet) first.</p>
+<ol type="1">
+<li><strong>Listings</strong> (<code>/modules/listings/</code>) — as <strong>seller</strong>, create a listing (title, category, condition, price, image) → it appears under <strong>Available</strong>.</li>
+<li><strong>Escrow / Trade</strong> (<code>/modules/market/</code>) — as <strong>buyer</strong>, <strong>Approve</strong> then <strong>Purchase</strong> (or one-step permit) → listing moves to <strong>Pending</strong>; then <strong>Confirm delivery</strong> → <strong>Sold</strong>, seller paid.</li>
+<li><strong>Reputation</strong> (<code>/modules/reputation/</code>) — as <strong>buyer</strong>, submit a <strong>1–5★</strong> rating → the seller's average updates.</li>
+</ol>
+<hr />
+<h2 id="d--marketplace-lifecycle-test-slices-24--hosted-sepolia">D · Marketplace Lifecycle Test (Slices 2–4) — Hosted Sepolia</h2>
+<p>Same flow on the <strong>live</strong> site, driven entirely through the GUI — every action is a real Sepolia transaction (~12–15s, real gas).</p>
+<h3 id="d1-roles--funding">D1. Roles &amp; funding</h3>
+<ul>
+<li><strong>Seller / buyer</strong>: any two Sepolia accounts. Each needs a little <strong>Sepolia ETH</strong> for gas; the <strong>buyer</strong> also needs <strong>ENGC</strong> — click <strong>Get 1,000 ENGC</strong> (faucet) on the token page, or use a pre-funded demo wallet.</li>
+<li>No deploy/serve needed — the contracts are already live (<code>config.js</code> <code>sepolia</code> block) and published on Pages.</li>
+</ul>
+<h3 id="d2-run-the-lifecycle">D2. Run the lifecycle</h3>
+<p>On the hosted site, switch MetaMask to <strong>Ethereum Sepolia</strong> and set the page's network dropdown to <strong>Sepolia (hosted demo)</strong> for each step:</p>
+<ol type="1">
+<li><strong>Listings</strong> — seller creates a listing → confirm in MetaMask → appears under <strong>Available</strong>.</li>
+<li><strong>Escrow / Trade</strong> — buyer <strong>Approve + Purchase</strong> → <strong>Pending</strong>; then <strong>Confirm delivery</strong> → <strong>Sold</strong>.</li>
+<li><strong>Reputation</strong> — buyer rates the seller <strong>1–5★</strong> → average updates.</li>
+</ol>
+<p>Verify independently on <strong><a href="https://sepolia.etherscan.io">Sepolia Etherscan</a></strong>: the Marketplace holds the price while <em>Pending</em>, transfers it to the seller on <em>Sold</em>, and <code>Reputation</code> records the rating.</p>
+<blockquote>
+<p>✅ <strong>Validated:</strong> the full list → escrow → confirm → rate lifecycle works on the public testnet through the hosted GUI, with on-chain escrow custody you can verify on Etherscan.</p>
 </blockquote>
 <hr />
 <h2 id="why-anvil-uses-the-local-page-not-the-hosted-url">Why Anvil uses the <em>local</em> page (not the hosted URL)</h2>

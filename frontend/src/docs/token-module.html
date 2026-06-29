@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slice 1 · Token · Enigma Docs</title>
+<link rel="stylesheet" href="docs.css"></head>
+<body>
+<header class="topbar"><a class="brand" href="../index.html">⟵ Enigma Demo</a><nav><a href="index.html">Docs Home</a><a href="why-blockchain.html">Why Blockchain</a><a href="network-tests.html">Network Tests</a><a href="token-module.html">Slice 1 · Token</a><a href="listings-module.html">Slice 2 · Listings</a><a href="escrow-module.html">Slice 3 · Escrow</a><a href="reputation-module.html">Slice 4 · Reputation</a><a href="contributing.html">Workflow</a><a href="procedures.html">Procedures</a><a href="publications.html">Publications</a><a href="security.html">Security</a><a href="../tracker/index.html">Tracker</a></nav></header>
+<main class="doc">
+<h1 id="slice-1--token--wallet-enigcreditsol">Slice 1 — Token + Wallet (<code>EnigCredit.sol</code>)</h1>
+<blockquote>
+<p>Owner: <strong>member1</strong> (Ranga Sam) · Branch: <code>feature/member1-token</code> · OpenZeppelin ERC-20 + Permit + Burnable + Ownable.</p>
+</blockquote>
+<h2 id="implements">Implements</h2>
+<ul>
+<li><code>EnigCredit</code> ERC-20 — name <em>EnigCredit</em>, symbol <strong>ENGC</strong>, 18 decimals, <strong>1,000,000</strong> initial supply minted to the deployer (owner).</li>
+<li><code>mint(to, amount)</code> — <strong>owner-only</strong> (<code>onlyOwner</code>); faculty/owner airdrops demo credits. Non-owner calls revert <code>OwnableUnauthorizedAccount</code>.</li>
+<li><code>faucet()</code> — <strong>public, capped</strong> self-serve <strong>1,000 ENGC</strong> with a <strong>1-hour per-wallet cooldown</strong> (<code>FaucetCooldown</code>). Demo affordance only; does <strong>not</strong> grant arbitrary minting.</li>
+<li>Inherited: <code>transfer</code> / <code>approve</code> / <code>allowance</code>, <code>permit</code> (EIP-2612 gasless approval), <code>burn</code> / <code>burnFrom</code>.</li>
+<li>Frontend (<code>modules/token/</code>): connect wallet (identity), live ENGC balance, <strong>Get 1,000 ENGC</strong> faucet card, owner <strong>Mint</strong> form.</li>
+</ul>
+<h2 id="events--errors">Events &amp; errors</h2>
+<ul>
+<li>Events: <code>Transfer</code>, <code>Approval</code>, <code>FaucetClaimed</code>.</li>
+<li>Errors: <code>OwnableUnauthorizedAccount</code>, <code>FaucetCooldown(availableAt)</code>.</li>
+</ul>
+<h2 id="tests-testenigcredittsol--1010">Tests (<code>test/EnigCredit.t.sol</code>) — <strong>10/10</strong></h2>
+<p>metadata · initial-supply-to-deployer · owner mint · non-owner mint revert · transfer · permit · burn reduces supply · faucet mints · faucet cooldown revert · faucet again after cooldown.</p>
+<h2 id="threat-model-security">Threat model (Security)</h2>
+<table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unauthorized issuance</td>
+<td><code>Ownable</code> owner-only <code>mint</code>; faucet is capped + rate-limited</td>
+</tr>
+<tr>
+<td>Faucet drain / spam</td>
+<td>fixed 1,000 ENGC per claim, 1-hour cooldown per wallet</td>
+</tr>
+<tr>
+<td>Approval front-running</td>
+<td>prefer <strong>EIP-2612 <code>permit</code></strong> (signature) over <code>approve</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="todo-checklist">TODO checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />faucet for demo top-ups · [ ] balance auto-refresh on account/chain change · [ ] "Switch to Sepolia" helper.</label></li>
+</ul>
+<h2 id="walkthrough">Walkthrough</h2>
+<p>📸 Validate mint / owner / faucet / balance on <strong>both networks</strong> (Local Anvil + Hosted Sepolia), step by step with screenshots: <a href="network-tests.html"><code>network-tests.md</code></a>. CLI reference: <a href="procedures.html"><code>PROCEDURES.md</code></a>.</p>
+
+</main>
+<footer>Enigma-Decentralized-Student-Marketplace · docs generated from Markdown by <code>scripts/build-docs.py</code></footer>
+</body></html>

@@ -1,0 +1,62 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slice 2 · Listings · Enigma Docs</title>
+<link rel="stylesheet" href="docs.css"></head>
+<body>
+<header class="topbar"><a class="brand" href="../index.html">⟵ Enigma Demo</a><nav><a href="index.html">Docs Home</a><a href="why-blockchain.html">Why Blockchain</a><a href="network-tests.html">Network Tests</a><a href="token-module.html">Slice 1 · Token</a><a href="listings-module.html">Slice 2 · Listings</a><a href="escrow-module.html">Slice 3 · Escrow</a><a href="reputation-module.html">Slice 4 · Reputation</a><a href="contributing.html">Workflow</a><a href="procedures.html">Procedures</a><a href="publications.html">Publications</a><a href="security.html">Security</a><a href="../tracker/index.html">Tracker</a></nav></header>
+<main class="doc">
+<h1 id="slice-2--listings-marketplacesol">Slice 2 — Listings (<code>Marketplace.sol</code>)</h1>
+<blockquote>
+<p>Owner: <strong>member2</strong> (vp2244) · Branch: <code>feature/member2-listings</code> · co-owns <code>Marketplace.sol</code> with member3 (escrow).</p>
+</blockquote>
+<h2 id="implements">Implements</h2>
+<ul>
+<li><code>createListing(title, category, condition, priceInTokens, imageUrl)</code> → returns a monotonically increasing <code>id</code> (<code>nextListingId++</code>), stores a <code>Listing</code> (seller, price, metadata, <code>Status.Available</code>), emits <code>ListingCreated</code>. Validates: non-empty title (<code>EmptyTitle</code>), positive price (<code>BadPrice</code>). <code>whenNotPaused</code>.</li>
+<li><code>getListing(id)</code> → <code>Listing</code> struct · <code>totalListings()</code> → <code>nextListingId</code> (reads for the UI).</li>
+<li><code>cancelListing(id)</code> — <strong>seller</strong> removes an <strong>Available</strong> listing → <code>Status.Cancelled</code>, emits <code>ListingCancelled</code> (reverts <code>NotSeller</code> / <code>NotAvailable</code>).</li>
+<li>Frontend (<code>modules/listings/</code>): create-listing form + browse <strong>Available</strong> listings.</li>
+</ul>
+<h2 id="events--errors">Events &amp; errors</h2>
+<ul>
+<li>Events: <code>ListingCreated(id, seller, title, priceInTokens)</code>, <code>ListingCancelled(id, seller)</code>.</li>
+<li>Errors: <code>EmptyTitle</code>, <code>BadPrice</code>, <code>NotSeller</code>, <code>NotAvailable</code>.</li>
+</ul>
+<h2 id="tests-testlistingstsol">Tests (<code>test/Listings.t.sol</code>)</h2>
+<p>create stores + returns id · empty-title revert · zero-price revert · ids increment · seller cancels Available · non-seller cancel revert · cancel non-Available revert.</p>
+<h2 id="threat-model-security">Threat model (Security)</h2>
+<table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Empty / malformed listing</td>
+<td><code>EmptyTitle</code> + <code>BadPrice</code> input validation</td>
+</tr>
+<tr>
+<td>Cancel someone else's listing</td>
+<td><code>NotSeller</code> (only <code>listing.seller</code>)</td>
+</tr>
+<tr>
+<td>Cancel a sold/pending item</td>
+<td><code>NotAvailable</code> (only <code>Status.Available</code>)</td>
+</tr>
+<tr>
+<td>Listing spam while paused</td>
+<td><code>whenNotPaused</code> (owner emergency stop)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="todo-checklist">TODO checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />search + category filter + sort · [ ] render avg rating per listing (read Slice 4) · [ ] image upload/IPFS.</label></li>
+</ul>
+<h2 id="walkthrough">Walkthrough</h2>
+<p>📸 Slice-2 validation (create → browse → cancel) on Local Anvil + Hosted Sepolia: follow Slice 1's dual-network pattern in <a href="network-tests.html"><code>network-tests.md</code></a>. CLI reference: <a href="procedures.html"><code>PROCEDURES.md</code></a>.</p>
+
+</main>
+<footer>Enigma-Decentralized-Student-Marketplace · docs generated from Markdown by <code>scripts/build-docs.py</code></footer>
+</body></html>

@@ -1,0 +1,76 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slice 3 · Escrow · Enigma Docs</title>
+<link rel="stylesheet" href="docs.css"></head>
+<body>
+<header class="topbar"><a class="brand" href="../index.html">⟵ Enigma Demo</a><nav><a href="index.html">Docs Home</a><a href="why-blockchain.html">Why Blockchain</a><a href="network-tests.html">Network Tests</a><a href="token-module.html">Slice 1 · Token</a><a href="listings-module.html">Slice 2 · Listings</a><a href="escrow-module.html">Slice 3 · Escrow</a><a href="reputation-module.html">Slice 4 · Reputation</a><a href="contributing.html">Workflow</a><a href="procedures.html">Procedures</a><a href="publications.html">Publications</a><a href="security.html">Security</a><a href="../tracker/index.html">Tracker</a></nav></header>
+<main class="doc">
+<h1 id="slice-3--escrow--trade-marketplacesol">Slice 3 — Escrow / Trade (<code>Marketplace.sol</code>)</h1>
+<blockquote>
+<p>Owner: <strong>member3</strong> (AJ Sanon) · Branch: <code>feature/member3-escrow</code> · co-owns <code>Marketplace.sol</code> with member2 (listings).</p>
+</blockquote>
+<h2 id="implements">Implements</h2>
+<ul>
+<li><code>purchaseItem(id)</code> — buyer must <code>approve</code> first; pulls <code>priceInTokens</code> via <strong><code>SafeERC20.transferFrom</code></strong> into the contract (escrow), sets <code>Status.Pending</code>, records <code>buyer</code> + <code>purchaseTimestamp</code>, emits <code>ItemPurchased</code>. <code>nonReentrant whenNotPaused</code>. Reverts <code>NotAvailable</code>, <code>SelfPurchase</code>.</li>
+<li><code>purchaseWithPermit(id, deadline, v, r, s)</code> — same as above but authorizes via <strong>EIP-2612 <code>permit</code></strong> (no separate <code>approve</code> tx).</li>
+<li><code>confirmDelivery(id)</code> — <strong>buyer</strong> confirms receipt → releases escrow to <strong>seller</strong> (<code>safeTransfer</code>), sets <code>Status.Sold</code>, emits <code>DeliveryConfirmed</code>. Reverts <code>NotPending</code>, <code>NotBuyer</code>.</li>
+<li><code>cancelPurchase(id)</code> — <strong>buyer</strong> refund <strong>after <code>CANCELLATION_TIMEOUT</code></strong> (trustless dispute), emits <code>PurchaseCancelled</code>. Reverts <code>NotPending</code>, <code>NotBuyer</code>, <code>TimeoutNotReached</code>.</li>
+<li><code>pause()</code> / <code>unpause()</code> — owner emergency stop.</li>
+<li>All token movements use <strong><code>SafeERC20</code></strong> and follow <strong>checks-effects-interactions</strong> under <strong><code>ReentrancyGuard</code></strong> (state updated before external calls).</li>
+<li>Frontend (<code>modules/market/</code>): 2-step buy (approve + purchase) or one-step permit, confirm, cancel.</li>
+</ul>
+<h2 id="events--errors">Events &amp; errors</h2>
+<ul>
+<li>Events: <code>ItemPurchased(id, buyer)</code>, <code>DeliveryConfirmed(id, seller, amount)</code>, <code>PurchaseCancelled(id, buyer)</code>, <code>Paused/Unpaused</code>.</li>
+<li>Errors: <code>NotAvailable</code>, <code>SelfPurchase</code>, <code>NotPending</code>, <code>NotBuyer</code>, <code>TimeoutNotReached</code>, <code>EnforcedPause</code>, <code>ReentrancyGuardReentrantCall</code>.</li>
+</ul>
+<h2 id="threat-model-security">Threat model (Security)</h2>
+<table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reentrancy on token transfer</td>
+<td><code>nonReentrant</code> + checks-effects-interactions on every token path</td>
+</tr>
+<tr>
+<td>Self-purchase / wrong status</td>
+<td><code>SelfPurchase</code> / <code>NotAvailable</code> / <code>NotPending</code> checks</td>
+</tr>
+<tr>
+<td>Seller never delivers</td>
+<td>buyer <code>cancelPurchase</code> after <code>CANCELLATION_TIMEOUT</code> (trustless refund)</td>
+</tr>
+<tr>
+<td>Non-compliant ERC-20 returns</td>
+<td><code>SafeERC20</code> (<code>safeTransfer</code> / <code>safeTransferFrom</code>)</td>
+</tr>
+<tr>
+<td>Operating during an incident</td>
+<td><code>Pausable</code> (<code>whenNotPaused</code>) owner emergency stop</td>
+</tr>
+<tr>
+<td>Approval front-running</td>
+<td>prefer <code>purchaseWithPermit</code> (signature) over <code>approve</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="tests-testescrowtsol">Tests (<code>test/Escrow.t.sol</code>)</h2>
+<p>purchase escrows tokens · self-purchase revert · confirm pays seller · cancel-before-timeout revert · cancel-after-timeout refunds buyer · purchase-while-paused revert · <code>purchaseWithPermit</code>.</p>
+<h2 id="todo-checklist">TODO checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />step-indicator UI · [ ] skip <code>approve</code> if allowance sufficient · [ ] surface the cancellation countdown.</label></li>
+</ul>
+<blockquote>
+<p>Ratings live in <strong>Slice 4 / <code>Reputation.sol</code></strong> (member4). This slice is <strong>escrow only</strong>: purchase (incl. <code>purchaseWithPermit</code>), confirm, cancel-after-timeout.</p>
+</blockquote>
+<h2 id="walkthrough">Walkthrough</h2>
+<p>📸 Slice-3 validation (approve → purchase → confirm/cancel) on Local Anvil + Hosted Sepolia: follow Slice 1's dual-network pattern in <a href="network-tests.html"><code>network-tests.md</code></a>. CLI reference: <a href="procedures.html"><code>PROCEDURES.md</code></a>.</p>
+
+</main>
+<footer>Enigma-Decentralized-Student-Marketplace · docs generated from Markdown by <code>scripts/build-docs.py</code></footer>
+</body></html>
