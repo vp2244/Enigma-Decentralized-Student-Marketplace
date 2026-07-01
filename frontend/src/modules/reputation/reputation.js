@@ -62,7 +62,7 @@ async function loadMyPurchases() {
     wrap.innerHTML = `<div class="escrow-pending-list">${sold.map(buildPurchaseItem).join("")}</div>`;
 
     // Wire star pickers
-    wrap.querySelectorAll(".star-input-inline").forEach(group => {
+    wrap.querySelectorAll(".star-input[data-val]").forEach(group => {
       const spans = group.querySelectorAll("span");
       spans.forEach(span => {
         span.onmouseover = () => highlightInline(spans, Number(span.dataset.val));
@@ -79,7 +79,7 @@ async function loadMyPurchases() {
       btn.addEventListener("click", () => {
         const id = Number(btn.getAttribute("data-rate-id"));
         const card = btn.closest(".escrow-pending-item");
-        const stars = Number(card.querySelector(".star-input-inline")?.dataset.val || 0);
+        const stars = Number(card.querySelector(".star-input[data-val]")?.dataset.val || 0);
         handleRate(btn, id, stars);
       });
     });
@@ -112,12 +112,12 @@ function buildPurchaseItem({ id, listing, rated }) {
       <span>Seller: ${sellerShort}</span>
       <span>Listing #${id}</span>
     </div>
-    <div class="star-input-inline" data-val="0" style="margin:10px 0;display:flex;gap:4px;font-size:1.4rem;cursor:pointer;">
-      <span data-val="1" style="color:var(--subtle)">★</span>
-      <span data-val="2" style="color:var(--subtle)">★</span>
-      <span data-val="3" style="color:var(--subtle)">★</span>
-      <span data-val="4" style="color:var(--subtle)">★</span>
-      <span data-val="5" style="color:var(--subtle)">★</span>
+    <div class="star-input" data-val="0" style="margin:10px 0;">
+      <span data-val="1">★</span>
+      <span data-val="2">★</span>
+      <span data-val="3">★</span>
+      <span data-val="4">★</span>
+      <span data-val="5">★</span>
     </div>
     <div class="escrow-pending-item-actions">
       <button data-rate-id="${id}">Submit Rating</button>
