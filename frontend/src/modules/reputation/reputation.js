@@ -51,7 +51,7 @@ async function loadMyPurchases() {
         Number(listing.status) === 2 &&
         listing.buyer.toLowerCase() === currentUserAddress.toLowerCase()
       ) {
-        const rated = await rc.reputation.listingRated(i);
+        const rated = await rc.reputation.buyerRatedSeller(i);
         sold.push({ id: i, listing, rated });
       }
     }
