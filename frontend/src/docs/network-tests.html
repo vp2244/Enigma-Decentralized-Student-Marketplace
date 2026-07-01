@@ -131,9 +131,13 @@
 <h3 id="c2-gui-walkthrough-local-page">C2. GUI walkthrough (local page)</h3>
 <p>Serve the GUI (<strong>§A2</strong>) and point MetaMask at Anvil (<strong>§A3</strong>). Use three imported Anvil accounts (owner, seller, buyer); fund the buyer with <strong>Get 1,000 ENGC</strong> (Slice-1 faucet) first.</p>
 <ol type="1">
-<li><strong>Listings</strong> (<code>/modules/listings/</code>) — as <strong>seller</strong>, create a listing (title, category, condition, price, image) → it appears under <strong>Available</strong>.</li>
-<li><strong>Escrow / Trade</strong> (<code>/modules/market/</code>) — as <strong>buyer</strong>, <strong>Approve</strong> then <strong>Purchase</strong> (or one-step permit) → listing moves to <strong>Pending</strong>; then <strong>Confirm delivery</strong> → <strong>Sold</strong>, seller paid.</li>
-<li><strong>Reputation</strong> (<code>/modules/reputation/</code>) — as <strong>buyer</strong>, submit a <strong>1–5★</strong> rating → the seller's average updates.</li>
+<li><p><strong>Listings</strong> (<code>/modules/listings/</code>) — as <strong>seller</strong>, create a listing (title, category, condition, price, image) → it appears under <strong>Available</strong>.</p>
+<p><img src="resources/listings/listings-create.png" alt="Anvil: seller posts &quot;Calculus Textbook&quot; (50 ENGC) → MetaMask confirms createListing" /></p></li>
+<li><p><strong>Escrow / Trade</strong> (<code>/modules/market/</code>) — as <strong>buyer</strong>, <strong>Approve</strong> then <strong>Purchase</strong> (or one-step permit) → listing moves to <strong>Pending</strong>; then <strong>Confirm delivery</strong> → <strong>Sold</strong>, seller paid.</p>
+<p><img src="resources/escrow/escrow-purchase.png" alt="Anvil: buyer views the Available listing → Buy (Approve + Purchase)" /></p>
+<p><img src="resources/escrow/escrow-confirm.png" alt="Anvil: listing now Pending — 50 ENGC held in escrow, buyer sees Confirm Delivery" /></p></li>
+<li><p><strong>Reputation</strong> (<code>/modules/reputation/</code>) — as <strong>buyer</strong>, submit a <strong>1–5★</strong> rating → the seller's average updates.</p>
+<p><img src="resources/reputation/reputation-rate.png" alt="Anvil: buyer submits a rating for the completed sale → &quot;Rating submitted — thank you!&quot;" /></p></li>
 </ol>
 <hr />
 <h2 id="d--marketplace-lifecycle-test-slices-24--hosted-sepolia">D · Marketplace Lifecycle Test (Slices 2–4) — Hosted Sepolia</h2>
@@ -146,9 +150,13 @@
 <h3 id="d2-run-the-lifecycle">D2. Run the lifecycle</h3>
 <p>On the hosted site, switch MetaMask to <strong>Ethereum Sepolia</strong> and set the page's network dropdown to <strong>Sepolia (hosted demo)</strong> for each step:</p>
 <ol type="1">
-<li><strong>Listings</strong> — seller creates a listing → confirm in MetaMask → appears under <strong>Available</strong>.</li>
-<li><strong>Escrow / Trade</strong> — buyer <strong>Approve + Purchase</strong> → <strong>Pending</strong>; then <strong>Confirm delivery</strong> → <strong>Sold</strong>.</li>
-<li><strong>Reputation</strong> — buyer rates the seller <strong>1–5★</strong> → average updates.</li>
+<li><p><strong>Listings</strong> — seller creates a listing → confirm in MetaMask → appears under <strong>Available</strong>.</p>
+<p><img src="resources/listings/listings-available.png" alt="Sepolia hosted GUI: Browse Listings shows live team items (Available / Pending)" /></p></li>
+<li><p><strong>Escrow / Trade</strong> — buyer <strong>Approve + Purchase</strong> → <strong>Pending</strong>; then <strong>Confirm delivery</strong> → <strong>Sold</strong>.</p>
+<p><img src="resources/escrow/escrow-sepolia.png" alt="Sepolia hosted GUI: buyer escrows listing #7 → Pending, awaiting Confirm Delivery" /></p></li>
+<li><p><strong>Reputation</strong> — buyer rates the seller <strong>1–5★</strong> → average updates.</p>
+<p><img src="resources/reputation/reputation-rate-sepolia.png" alt="Sepolia hosted GUI: buyer submits a 5★ rating → MetaMask confirms the on-chain tx" /></p>
+<p><img src="resources/reputation/reputation-average.png" alt="Sepolia hosted GUI: listing now Sold and the seller&#39;s on-chain average shows ★ 5.0" /></p></li>
 </ol>
 <p>Verify independently on <strong><a href="https://sepolia.etherscan.io">Sepolia Etherscan</a></strong>: the Marketplace holds the price while <em>Pending</em>, transfers it to the seller on <em>Sold</em>, and <code>Reputation</code> records the rating.</p>
 <blockquote>

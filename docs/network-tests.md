@@ -184,9 +184,20 @@ caller reverts `Unauthorized`.
 ### C2. GUI walkthrough (local page)
 Serve the GUI (**§A2**) and point MetaMask at Anvil (**§A3**). Use three imported Anvil accounts (owner,
 seller, buyer); fund the buyer with **Get 1,000 ENGC** (Slice-1 faucet) first.
+
 1. **Listings** (`/modules/listings/`) — as **seller**, create a listing (title, category, condition, price, image) → it appears under **Available**.
+
+   ![Anvil: seller posts "Calculus Textbook" (50 ENGC) → MetaMask confirms createListing](resources/listings/listings-create.png)
+
 2. **Escrow / Trade** (`/modules/market/`) — as **buyer**, **Approve** then **Purchase** (or one-step permit) → listing moves to **Pending**; then **Confirm delivery** → **Sold**, seller paid.
+
+   ![Anvil: buyer views the Available listing → Buy (Approve + Purchase)](resources/escrow/escrow-purchase.png)
+
+   ![Anvil: listing now Pending — 50 ENGC held in escrow, buyer sees Confirm Delivery](resources/escrow/escrow-confirm.png)
+
 3. **Reputation** (`/modules/reputation/`) — as **buyer**, submit a **1–5★** rating → the seller's average updates.
+
+   ![Anvil: buyer submits a rating for the completed sale → "Rating submitted — thank you!"](resources/reputation/reputation-rate.png)
 
 ---
 
@@ -203,9 +214,20 @@ transaction (~12–15s, real gas).
 ### D2. Run the lifecycle
 On the hosted site, switch MetaMask to **Ethereum Sepolia** and set the page's network dropdown to
 **Sepolia (hosted demo)** for each step:
+
 1. **Listings** — seller creates a listing → confirm in MetaMask → appears under **Available**.
+
+   ![Sepolia hosted GUI: Browse Listings shows live team items (Available / Pending)](resources/listings/listings-available.png)
+
 2. **Escrow / Trade** — buyer **Approve + Purchase** → **Pending**; then **Confirm delivery** → **Sold**.
+
+   ![Sepolia hosted GUI: buyer escrows listing #7 → Pending, awaiting Confirm Delivery](resources/escrow/escrow-sepolia.png)
+
 3. **Reputation** — buyer rates the seller **1–5★** → average updates.
+
+   ![Sepolia hosted GUI: buyer submits a 5★ rating → MetaMask confirms the on-chain tx](resources/reputation/reputation-rate-sepolia.png)
+
+   ![Sepolia hosted GUI: listing now Sold and the seller's on-chain average shows ★ 5.0](resources/reputation/reputation-average.png)
 
 Verify independently on **[Sepolia Etherscan](https://sepolia.etherscan.io)**: the Marketplace holds the
 price while *Pending*, transfers it to the seller on *Sold*, and `Reputation` records the rating.
